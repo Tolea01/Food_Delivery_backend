@@ -23,6 +23,6 @@ export class UserService {
       password: await argon2.hash(userData.password),
     })
 
-    return { user }
+    return { message: "User created successfully." }
   }
 }
