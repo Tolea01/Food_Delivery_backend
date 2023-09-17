@@ -12,6 +12,14 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>
   ) { }
 
+  private async findUserById(id: number): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) throw new NotFoundException('User not found!');
+
+    return user;
+  }
+
   async create(userData: CreateUserDto): Promise<{ message: string }> {
     const existUser = await this.userRepository.findOne({
       where: {
@@ -30,18 +38,21 @@ export class UserService {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return this.userRepository.find();
+    const users = await this.userRepository.find();
+
+    if (!users || users.length === 0) throw new NotFoundException('Users not found!');
+
+    return users;
   }
 
   async getOneUser(id: number): Promise<User | undefined> {
-    return this.userRepository.findOne({ where: { id } });
+    const user = await this.findUserById(id);
+
+    return user;
   }
 
   async updateUser(id: number, updateUser: UpdateUserDto): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id } });
-
-    if (!user) throw new NotFoundException('User not found!');
-
+    const user = await this.findUserById(id);
     const updateResult = await this.userRepository.update(id, updateUser);
 
     return updateResult.affected > 0 ? { message: 'User updated successfully' } :
@@ -49,10 +60,7 @@ export class UserService {
   }
 
   async removeUser(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
-
-    if (!user) throw new NotFoundException('User not found!');
-
+    const user = await this.findUserById(id);
     const removeResult = await this.userRepository.delete(id);
 
     return removeResult.affected > 0 ? { message: 'User deleted successfully' } :
