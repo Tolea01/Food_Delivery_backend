@@ -2,14 +2,15 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager } from 'typeorm';
 import * as argon2 from 'argon2';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private readonly userRepository: Repository<User>
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly entityManager: EntityManager
   ) { }
 
   private async findUserById(id: number): Promise<User> {
@@ -21,20 +22,21 @@ export class UserService {
   }
 
   async create(userData: CreateUserDto): Promise<{ message: string }> {
-    const existUser = await this.userRepository.findOne({
-      where: {
-        username: userData.username
-      },
-    })
+    return this.entityManager.transaction(async transactionalEntityManager => {
+      const existUser = await transactionalEntityManager.findOne(User,
+        {
+          where: { username: userData.username }
+        });
 
-    if (existUser) throw new BadRequestException('This user already exist');
+      if (existUser) throw new BadRequestException('This user already exists');
 
-    const user = await this.userRepository.save({
-      username: userData.username,
-      password: await argon2.hash(userData.password),
-    })
+      const user = await transactionalEntityManager.save(User, {
+        username: userData.username,
+        password: await argon2.hash(userData.password),
+      });
 
-    return { message: "User created successfully." }
+      return { message: "User created successfully." };
+    });
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -52,18 +54,20 @@ export class UserService {
   }
 
   async updateUser(id: number, updateUser: UpdateUserDto): Promise<{ message: string }> {
-    const user = await this.findUserById(id);
-    const updateResult = await this.userRepository.update(id, updateUser);
+    return this.entityManager.transaction(async transactionalEntityManager => {
+      const user = await this.findUserById(id);
+      const updateResult = await transactionalEntityManager.update(User, id, updateUser);
 
-    return updateResult.affected > 0 ? { message: 'User updated successfully' } :
-      { message: 'User not updated' };
+      return updateResult.affected > 0 ? { message: 'User updated successfully' } : { message: 'User not updated' };
+    });
   }
 
-  async removeUser(id: number) {
-    const user = await this.findUserById(id);
-    const removeResult = await this.userRepository.delete(id);
+  async removeUser(id: number): Promise<{ message: string }> {
+    return this.entityManager.transaction(async transactionalEntityManager => {
+      const user = await this.findUserById(id);
+      const removeResult = await transactionalEntityManager.delete(User, id);
 
-    return removeResult.affected > 0 ? { message: 'User deleted successfully' } :
-      { message: 'User not deleted' }
+      return removeResult.affected > 0 ? { message: 'User deleted successfully' } : { message: 'User not deleted' };
+    })
   }
 }
