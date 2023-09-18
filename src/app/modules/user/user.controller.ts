@@ -9,7 +9,8 @@ import {
   Get,
   Param,
   Patch,
-  Delete
+  Delete,
+  Query
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -20,7 +21,7 @@ export class UserController {
   @Post()
   @UsePipes(new ValidationPipe())
   create(@Body() createUser: CreateUserDto) {
-    return this.userService.create(createUser)
+    return this.userService.create(createUser);
   }
 
   @Get('listUsers')
@@ -30,16 +31,21 @@ export class UserController {
 
   @Get(':id')
   getOne(@Param('id') id: string) {
-    return this.userService.getOneUser(Number(id))
+    return this.userService.getUserById(Number(id));
+  }
+
+  @Get()
+  getByUsername(@Query('username') username: string) {
+    return this.userService.getUserByUsername(username);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUser: UpdateUserDto) {
-    return this.userService.updateUser(Number(id), updateUser)
+    return this.userService.updateUser(Number(id), updateUser);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.removeUser(Number(id))
+    return this.userService.removeUser(Number(id));
   }
 }

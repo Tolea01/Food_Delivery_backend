@@ -42,13 +42,21 @@ export class UserService {
   async getAllUsers(): Promise<User[]> {
     const users = await this.userRepository.find();
 
-    if (!users || users.length === 0) throw new NotFoundException('Users not found!');
+    if (users.length === 0) throw new NotFoundException('Users not found!');
 
     return users;
   }
 
-  async getOneUser(id: number): Promise<User | undefined> {
+  async getUserById(id: number): Promise<User | undefined> {
     const user = await this.findUserById(id);
+
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const user = await this.userRepository.findOne({ where: { username } });
+
+    if (!user) throw new NotFoundException('User not found!');
 
     return user;
   }
