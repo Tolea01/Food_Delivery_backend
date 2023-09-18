@@ -13,14 +13,6 @@ export class UserService {
     private readonly entityManager: EntityManager
   ) { }
 
-  private async findUserById(id: number): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
-
-    if (!user) throw new NotFoundException('User not found!');
-
-    return user;
-  }
-
   async create(userData: CreateUserDto): Promise<{ message: string }> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       const existUser = await transactionalEntityManager.findOne(User,
@@ -47,8 +39,10 @@ export class UserService {
     return users;
   }
 
-  async getUserById(id: number): Promise<User | undefined> {
-    const user = await this.findUserById(id);
+  async getUserById(id: number): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) throw new NotFoundException('User not found!');
 
     return user;
   }
@@ -63,7 +57,7 @@ export class UserService {
 
   async updateUser(id: number, updateUser: UpdateUserDto): Promise<{ message: string }> {
     return this.entityManager.transaction(async transactionalEntityManager => {
-      const user = await this.findUserById(id);
+      const user = await this.getUserById(id);
       const updateResult = await transactionalEntityManager.update(User, id, updateUser);
 
       return updateResult.affected > 0 ? { message: 'User updated successfully' } : { message: 'User not updated' };
@@ -72,7 +66,7 @@ export class UserService {
 
   async removeUser(id: number): Promise<{ message: string }> {
     return this.entityManager.transaction(async transactionalEntityManager => {
-      const user = await this.findUserById(id);
+      const user = await this.getUserById(id);
       const removeResult = await transactionalEntityManager.delete(User, id);
 
       return removeResult.affected > 0 ? { message: 'User deleted successfully' } : { message: 'User not deleted' };
