@@ -1,5 +1,7 @@
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import paginationConfig from 'src/app/config/config.pagination';
 import {
   Body,
   Controller,
@@ -8,10 +10,9 @@ import {
   Param,
   Patch,
   Delete,
-  Query
+  Query,
+  ParseIntPipe
 } from '@nestjs/common';
-import { UpdateUserDto } from './dto/update-user.dto';
-import paginationConfig from 'src/app/config/config.pagination';
 
 @Controller('user')
 export class UserController {
@@ -32,8 +33,8 @@ export class UserController {
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string) {
-    return this.userService.getUserById(Number(id));
+  getOne(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.getUserById(id);
   }
 
   @Get()
@@ -42,12 +43,12 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUser: UpdateUserDto) {
-    return this.userService.updateUser(Number(id), updateUser);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateUser: UpdateUserDto) {
+    return this.userService.updateUser(id, updateUser);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.removeUser(Number(id));
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.removeUser(id);
   }
 }
