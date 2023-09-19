@@ -11,6 +11,7 @@ import {
   Query
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
+import paginationConfig from 'src/app/config/config.pagination';
 
 @Controller('user')
 export class UserController {
@@ -21,9 +22,13 @@ export class UserController {
     return this.userService.create(createUser);
   }
 
-  @Get('listUsers')
-  getAll() {
-    return this.userService.getAllUsers();
+  @Get('list')
+  getAll(
+    @Query('page') page: number = paginationConfig.page,
+    @Query('itemsPerPage') itemsPerPage: number = paginationConfig.itemsPerPage,
+    @Query('sort') sort: string | undefined
+  ) {
+    return this.userService.getAllUsers(page, itemsPerPage, sort);
   }
 
   @Get(':id')

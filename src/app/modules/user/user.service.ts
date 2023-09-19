@@ -31,12 +31,21 @@ export class UserService {
     });
   }
 
-  async getAllUsers(): Promise<User[]> {
-    const users = await this.userRepository.find();
+  async getAllUsers(page: number, itemsPerPage: number, sort: string): Promise<User[]> {
+    const skip = (page - 1) * itemsPerPage;
+    let queryBuilder = this.userRepository.createQueryBuilder('user');
 
-    if (users.length === 0) throw new NotFoundException('Users not found!');
+    if (sort) {
+      const [field, order] = sort.split(':');
 
-    return users;
+      if (field && order) {
+        queryBuilder = queryBuilder.orderBy(`user.${field}`, order.toUpperCase() as 'ASC' | 'DESC');
+      }
+    }
+
+    queryBuilder = queryBuilder.skip(skip).take(itemsPerPage);
+
+    return await queryBuilder.getMany();
   }
 
   async getUserById(id: number): Promise<User> {
