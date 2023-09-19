@@ -13,7 +13,7 @@ export class UserService {
     private readonly entityManager: EntityManager
   ) { }
 
-  async create(userData: CreateUserDto): Promise<{ message: string }> {
+  async create(userData: CreateUserDto): Promise<any> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       const existUser = await transactionalEntityManager.findOne(User,
         {
@@ -27,7 +27,11 @@ export class UserService {
         password: await argon2.hash(userData.password),
       });
 
-      return { message: "User created successfully." };
+      return {
+        id: user.id,
+        username: user.username,
+        role: user.role
+      }
     });
   }
 
@@ -51,34 +55,40 @@ export class UserService {
   async getUserById(id: number): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
 
-    if (!user) throw new NotFoundException('User not found!');
-
     return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const user = await this.userRepository.findOne({ where: { username } });
 
-    if (!user) throw new NotFoundException('User not found!');
-
     return user;
   }
 
-  async updateUser(id: number, updateUser: UpdateUserDto): Promise<{ message: string }> {
+  async updateUser(id: number, updateUser: UpdateUserDto): Promise<Partial<User>> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       const user = await this.getUserById(id);
-      const updateResult = await transactionalEntityManager.update(User, id, updateUser);
+      const updatedFields: Partial<User> = {};
 
-      return updateResult.affected > 0 ? { message: 'User updated successfully' } : { message: 'User not updated' };
+      if (!user) throw new NotFoundException('User not found!');
+
+      if (updateUser.username !== undefined && updateUser !== user.username) {
+        updatedFields.username = updateUser.username;
+      }
+
+      if (updateUser.password) {
+        updatedFields.password = await argon2.hash(updateUser.password)
+      }
+
+      const updateResult = await transactionalEntityManager.update(User, id, updatedFields);
+
+      return updatedFields;
     });
   }
 
-  async removeUser(id: number): Promise<{ message: string }> {
+  async removeUser(id: number): Promise<any> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       const user = await this.getUserById(id);
       const removeResult = await transactionalEntityManager.delete(User, id);
-
-      return removeResult.affected > 0 ? { message: 'User deleted successfully' } : { message: 'User not deleted' };
     })
   }
 }
