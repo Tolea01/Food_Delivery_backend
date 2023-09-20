@@ -5,12 +5,14 @@ import { User } from './user.entity';
 import { Repository, EntityManager } from 'typeorm';
 import * as argon2 from 'argon2';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly entityManager: EntityManager
+    private readonly entityManager: EntityManager,
+    private readonly jwtService: JwtService,
   ) { }
 
   async create(userData: CreateUserDto): Promise<any> {
@@ -30,7 +32,8 @@ export class UserService {
       return {
         id: user.id,
         username: user.username,
-        role: user.role
+        role: user.role,
+        token: this.jwtService.sign({username: userData.username})
       }
     });
   }
