@@ -1,17 +1,17 @@
 import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
 
 @Entity()
-@Unique(['username'])
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number
+  @Unique(['username'])
+  export class User {
+    @PrimaryGeneratedColumn()
+    id: number
 
-  @Column({length: 50})
-  username: string
+    @Column({ length: 50, nullable: false })
+    username: string
 
-  @Column()
-  password: string
+    @Column({nullable: false})
+    password: string
 
-  @Column({default: 'admin', length: 8})
-  role: string
-}
+    @Column({ length: 8, nullable: false })
+    role: string
+  }

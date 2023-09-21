@@ -1,10 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserListItemDTO } from './dto/user-list-item.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository, EntityManager } from 'typeorm';
 import * as argon2 from 'argon2';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { paginationConfig } from 'src/app/config';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -13,7 +16,7 @@ export class UserService {
     private readonly entityManager: EntityManager
   ) { }
 
-  async create(userData: CreateUserDto): Promise<any> {
+  async create(userData: CreateUserDto): Promise<User> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       const existUser = await transactionalEntityManager.findOne(User,
         {
@@ -27,32 +30,41 @@ export class UserService {
         password: await argon2.hash(userData.password),
       });
 
-      return {
-        id: user.id,
-        username: user.username,
-        role: user.role
-      }
+      return user;
     });
   }
 
-  async getAllUsers(page: number, itemsPerPage: number, sort: string): Promise<User[]> {
+  async getAllUsers(pagination: {
+    itemsPerPage: number,
+    page: number,
+    sortColumn: string,
+    sortOrder: string
+  }): Promise<UserListItemDTO[]> {
+    const { itemsPerPage, page, sortColumn, sortOrder } = {
+      ...paginationConfig,
+      ...pagination
+    };
+
+    const take = itemsPerPage;
     const skip = (page - 1) * itemsPerPage;
-    let queryBuilder = this.userRepository.createQueryBuilder('user');
 
-    if (sort) {
-      const [field, order] = sort.split(':');
-
-      if (field && order) {
-        queryBuilder = queryBuilder.orderBy(`user.${field}`, order.toUpperCase() as 'ASC' | 'DESC');
+    const items = await this.userRepository.find({
+      take,
+      skip,
+      order: {
+        [sortColumn]: sortOrder
       }
-    }
+    });
 
-    queryBuilder = queryBuilder.skip(skip).take(itemsPerPage);
+    const totalUsers = await this.userRepository.count();
+    const data = items.map(item => ({
+      ...plainToClass(UserListItemDTO, item),
+    }))
 
-    return await queryBuilder.getMany();
+    return data;
   }
 
-  async getUserById(id: number): Promise<User> {
+  async getUserById(id: number): Promise<User | undefined> {
     const user = await this.userRepository.findOne({ where: { id } });
 
     return user;
@@ -71,7 +83,7 @@ export class UserService {
 
       if (!user) throw new NotFoundException('User not found!');
 
-      if (updateUser.username !== undefined && updateUser !== user.username) {
+      if (updateUser !== user.username) {
         updatedFields.username = updateUser.username;
       }
 
@@ -85,9 +97,8 @@ export class UserService {
     });
   }
 
-  async removeUser(id: number): Promise<any> {
+  async removeUser(id: number): Promise<void> {
     return this.entityManager.transaction(async transactionalEntityManager => {
-      const user = await this.getUserById(id);
       const removeResult = await transactionalEntityManager.delete(User, id);
     })
   }
