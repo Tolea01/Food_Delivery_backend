@@ -1,7 +1,7 @@
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import paginationConfig from 'src/app/config/config.pagination';
+import paginationConfig from 'src/app/config/pagination';
 import {
   Body,
   Controller,
