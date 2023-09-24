@@ -28,6 +28,7 @@ export class UserService {
       const user = await transactionalEntityManager.save(User, {
         username: userData.username,
         password: await argon2.hash(userData.password),
+        role: userData.role
       });
 
       return user;
