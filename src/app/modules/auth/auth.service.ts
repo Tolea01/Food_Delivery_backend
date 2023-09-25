@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
@@ -25,5 +25,20 @@ export class AuthService {
       username,
       token: this.jwtService.sign({ id: user.id, username: user.username })
     };
+  }
+
+  async getUserByToken(token: string) {
+    const credentials = await this.jwtService.decode(token.replace('Bearer ', '')) as any;
+
+    if (!credentials) throw new BadRequestException('No credentials!');
+
+    const { sub } = credentials;
+
+    const user = await this.userService.getUserById(sub);
+
+    if (!user) throw new NotFoundException('User not found!');
+
+    return user;
+
   }
 }
