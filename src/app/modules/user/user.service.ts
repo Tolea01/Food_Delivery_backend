@@ -8,6 +8,7 @@ import * as argon2 from 'argon2';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { paginationConfig } from 'src/app/config';
 import { plainToClass } from 'class-transformer';
+import appError from 'src/app/config/appError';
 
 @Injectable()
 export class UserService {
@@ -23,13 +24,13 @@ export class UserService {
           where: { username: userData.username }
         });
 
-      if (existUser) throw new BadRequestException('This user already exists');
+      if (existUser) throw new BadRequestException(appError.USER_EXIST);
 
       const user = await transactionalEntityManager.save(User, {
         username: userData.username,
         password: await argon2.hash(userData.password),
         role: userData.role
-      });
+      }); 
 
       return user;
     });
@@ -82,7 +83,7 @@ export class UserService {
       const user = await this.getUserById(id);
       const updatedFields: Partial<User> = {};
 
-      if (!user) throw new NotFoundException('User not found!');
+      if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
       if (updateUser !== user.username) {
         updatedFields.username = updateUser.username;

@@ -1,17 +1,17 @@
 import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
-
+import { UserRole } from './user-role.enum';
 @Entity()
-  @Unique(['username'])
-  export class User {
-    @PrimaryGeneratedColumn()
-    id: number
+@Unique(['username'])
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number
 
-    @Column({ length: 50, nullable: false })
-    username: string
+  @Column({ length: 50, nullable: false })
+  username: string
 
-    @Column({nullable: false})
-    password: string
+  @Column({ nullable: false })
+  password: string
 
-    @Column({ length: 8, nullable: false })
-    role: string
-  }
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.Admin})
+  role: UserRole;
+}

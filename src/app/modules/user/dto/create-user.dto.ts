@@ -1,4 +1,5 @@
 import { IsNotEmpty, Length, } from "class-validator";
+import { UserRole } from "../user-role.enum";
 
 export class CreateUserDto {
   @IsNotEmpty({ message: 'Username is required!' })
@@ -10,5 +11,5 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty()
-  role: string;
+  role: UserRole;
 }
