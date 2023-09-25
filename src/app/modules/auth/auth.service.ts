@@ -2,6 +2,9 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { UserService } from '../user/user.service';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
+import { LoginDto } from './dto/login.dto';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -10,21 +13,37 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) { }
 
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = await this.userService.getUserByUsername(username);
-    const passwordIsMatch = await argon2.verify(user.password, password);
-    if (user && passwordIsMatch) return user;
+  async validateUser(payload: LoginDto): Promise<any> {
+    const user = await this.userService.getUserByUsername(payload.username);
+
+    if (user) {
+      const passwordIsMatch = await argon2.verify(user.password, payload.password);
+
+      if (passwordIsMatch) {
+        const userData = { ...user }
+        delete userData.password;
+        return userData;
+      }
+    }
 
     throw new UnauthorizedException('Username or password is incorrect!');
   }
 
-  async login(user: Record<string, string>) {
-    const { id, username } = user;
-    return {
-      id,
-      username,
-      token: this.jwtService.sign({ id: user.id, username: user.username })
-    };
+  async login(data: LoginDto): Promise<string> {
+    try {
+      const user = await this.validateUser(data);
+      return this.jwtService.sign({
+        sub: user.id,
+        id: user.id,
+        username: user.username,
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async registerUser(user: CreateUserDto): Promise<User> {
+    return await this.userService.create(user);
   }
 
   async getUserByToken(token: string) {
