@@ -9,12 +9,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { paginationConfig } from 'src/app/config';
 import { plainToClass } from 'class-transformer';
 import appError from 'src/app/config/appError';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly entityManager: EntityManager
+    private readonly entityManager: EntityManager,
+    private readonly jwtService: JwtService,
   ) { }
 
   async create(userData: CreateUserDto): Promise<User> {
@@ -30,7 +32,7 @@ export class UserService {
         username: userData.username,
         password: await argon2.hash(userData.password),
         role: userData.role
-      }); 
+      });
 
       return user;
     });
