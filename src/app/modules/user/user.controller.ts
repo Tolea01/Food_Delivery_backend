@@ -15,14 +15,13 @@ import {
   DefaultValuePipe
 } from '@nestjs/common';
 import { User } from './user.entity';
-import { UserListItemDTO } from './dto/user-list-item.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Post()
-  async create(@Body() createUser: CreateUserDto): Promise<User> {
+  async create(@Body() createUser: CreateUserDto): Promise<Partial<User>> {
     return await this.userService.create(createUser);
   }
 
@@ -47,7 +46,7 @@ export class UserController {
       'sortColumn',
       new DefaultValuePipe(paginationConfig.sortColumn),
     ) sortColumn: string,
-  ): Promise<UserListItemDTO[]> {
+  ): Promise<Partial<User[]>> {
     const pagination = { itemsPerPage, page, sortOrder, sortColumn };
 
     return await this.userService.getAllUsers(pagination);
@@ -56,11 +55,6 @@ export class UserController {
   @Get(':id')
   async getOne(@Param('id', ParseIntPipe) id: number): Promise<User | undefined> {
     return await this.userService.getUserById(id);
-  }
-
-  @Get()
-  async getByUsername(@Query('username') username: string): Promise<User | undefined> {
-    return await this.userService.getUserByUsername(username);
   }
 
   @Patch(':id')

@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { User } from '../user/user.entity';
+import appError from 'src/app/config/appError';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
       }
     }
 
-    throw new UnauthorizedException('Username or password is incorrect!');
+    throw new UnauthorizedException(appError.INCORRECT_LOGIN_DATA);
   }
 
   async login(data: LoginDto): Promise<string> {
@@ -36,26 +37,27 @@ export class AuthService {
         sub: user.id,
         id: user.id,
         username: user.username,
+        role: user.role
       });
     } catch (e) {
       throw e;
     }
   }
 
-  async registerUser(user: CreateUserDto): Promise<User> {
+  async registerUser(user: CreateUserDto): Promise<Partial<User>> {
     return await this.userService.create(user);
   }
 
-  async getUserByToken(token: string) {
+  async getUserByToken(token: string): Promise<User> {
     const credentials = await this.jwtService.decode(token.replace('Bearer ', '')) as any;
 
-    if (!credentials) throw new BadRequestException('No credentials!');
+    if (!credentials) throw new BadRequestException(appError.NO_CREDENTIALS);
 
     const { sub } = credentials;
 
     const user = await this.userService.getUserById(sub);
 
-    if (!user) throw new NotFoundException('User not found!');
+    if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
     return user;
 

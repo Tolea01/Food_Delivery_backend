@@ -1,6 +1,7 @@
 import { HttpException, Injectable, NestMiddleware, HttpStatus } from "@nestjs/common";
 import { AuthService } from "../modules/auth/auth.service";
 import { NextFunction } from "express";
+import appError from "../config/appError";
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -13,7 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
       const user = await this.authService.getUserByToken(authHeaders);
 
       if (!user) {
-        throw new HttpException('User not found!', HttpStatus.UNAUTHORIZED)
+        throw new HttpException(appError.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED)
       }
 
       req.user = user;

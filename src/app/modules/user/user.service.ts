@@ -1,25 +1,30 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserListItemDTO } from './dto/user-list-item.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository, EntityManager } from 'typeorm';
 import * as argon2 from 'argon2';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { paginationConfig } from 'src/app/config';
-import { plainToClass } from 'class-transformer';
 import appError from 'src/app/config/appError';
-import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly entityManager: EntityManager,
-    private readonly jwtService: JwtService,
   ) { }
 
-  async create(userData: CreateUserDto): Promise<User> {
+  private userProps(user: User): User {
+    return {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      password: undefined
+    }
+  }
+
+  async create(userData: CreateUserDto): Promise<Partial<User>> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       const existUser = await transactionalEntityManager.findOne(User,
         {
@@ -34,7 +39,7 @@ export class UserService {
         role: userData.role
       });
 
-      return user;
+      return this.userProps(user);
     });
   }
 
@@ -43,7 +48,7 @@ export class UserService {
     page: number,
     sortColumn: string,
     sortOrder: string
-  }): Promise<UserListItemDTO[]> {
+  }): Promise<Partial<User[]>> {
     const { itemsPerPage, page, sortColumn, sortOrder } = {
       ...paginationConfig,
       ...pagination
@@ -61,9 +66,7 @@ export class UserService {
     });
 
     const totalUsers = await this.userRepository.count();
-    const data = items.map(item => ({
-      ...plainToClass(UserListItemDTO, item),
-    }))
+    const data = items.map(item => this.userProps(item))
 
     return data;
   }
@@ -71,7 +74,7 @@ export class UserService {
   async getUserById(id: number): Promise<User | undefined> {
     const user = await this.userRepository.findOne({ where: { id } });
 
-    return user;
+    return this.userProps(user);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
@@ -95,7 +98,11 @@ export class UserService {
         updatedFields.password = await argon2.hash(updateUser.password)
       }
 
-      const updateResult = await transactionalEntityManager.update(User, id, updatedFields);
+      if (updateUser.role) {
+        updatedFields.role = updateUser.role
+      }
+
+        const updateResult = await transactionalEntityManager.update(User, id, updatedFields);
 
       return updatedFields;
     });
