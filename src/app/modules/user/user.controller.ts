@@ -15,17 +15,21 @@ import {
   DefaultValuePipe
 } from '@nestjs/common';
 import { User } from './user.entity';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('User CRUD')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Post()
+  @ApiOperation({ description: 'This route returns a list of all users, or users specified by parameters' })
   async create(@Body() createUser: CreateUserDto): Promise<Partial<User>> {
     return await this.userService.create(createUser);
   }
 
   @Get('list')
+  @ApiOperation({ description: 'This route returns a list of all users, or users specified by parameters' })
   async getAll(
     @Query(
       'itemsPerPage',
@@ -53,16 +57,19 @@ export class UserController {
   }
 
   @Get(':id')
+  @ApiOperation({ description: 'This route returns a user by id' })
   async getOne(@Param('id', ParseIntPipe) id: number): Promise<User | undefined> {
     return await this.userService.getUserById(id);
   }
 
   @Patch(':id')
+  @ApiOperation({ description: 'This route allows updating a field by id' })
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateUser: UpdateUserDto): Promise<Partial<User>> {
     return await this.userService.updateUser(id, updateUser);
   }
 
   @Delete(':id')
+  @ApiOperation({ description: 'This route deletes a user by id' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return await this.userService.removeUser(id);
   }
