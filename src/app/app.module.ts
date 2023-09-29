@@ -1,16 +1,14 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { UserModule } from './modules/user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from './config/database';
-import { AuthModule } from './modules/auth/auth.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import publicPaths from './config/publicPaths';
+import AllModules from './modules';
 
 @Module({
   imports: [
-    UserModule,
-    AuthModule,
+    ...AllModules,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -22,7 +20,7 @@ import publicPaths from './config/publicPaths';
   providers: [],
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure(consumer: MiddlewareConsumer): void {
     consumer
     .apply(AuthMiddleware)
     .exclude(...publicPaths)

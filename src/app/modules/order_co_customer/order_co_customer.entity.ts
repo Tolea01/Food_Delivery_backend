@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { createUniqueColumnOptions } from "src/app/helpers/column-helpers";
 
-Entity()
+@Entity()
 export class OrderCoCustomer {
   @PrimaryGeneratedColumn()
   id: number;
