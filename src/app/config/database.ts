@@ -7,8 +7,8 @@ export const databaseConfig = async (configService: ConfigService): Promise<any>
   username: configService.get('DB_USERNAME'),
   password: configService.get('DB_PASSWORD'),
   database: configService.get('DB_NAME'),
-  synchronize: true,
-  entities: [__dirname + '/../config/../**/*.entity{.js, .ts}']
+  synchronize: false,
+  entities: [__dirname + '/../**/*.entity{.js, .ts}']
 });
 
 export default databaseConfig;
