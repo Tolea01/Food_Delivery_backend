@@ -1,22 +1,16 @@
-import { DataSource } from "typeorm"
-import * as proces from 'process';
+import * as process from 'process'
+import { DataSource, DataSourceOptions } from 'typeorm';
 
-const AppDataSource = new DataSource({
+const databaseConnection: DataSourceOptions = {
   type: "postgres",
-  host: proces.env.DB_HOST,
-  port: Number(proces.env.DB_PORT),
-  username: proces.env.DB_USERNAME,
-  password: proces.env.DB_PASSWORD,
-  database: proces.env.DB_NAME,
-  migrationsTableName: 'migr'
-})
+  host: 'localhost',
+  port: 5432,
+  username: 'postgres',
+  password: 'backend_dev',
+  database: 'food_delivery',
+  entities: ['dist/app/modules/**/*.entity{.js,.ts}'],
+  migrations: ['dist/app/migrations/*{.js,.ts}']
+}
 
-AppDataSource.initialize()
-  .then(() => {
-    console.log("Data Source has been initialized!")
-  })
-  .catch((err) => {
-    console.error("Error during Data Source initialization", err)
-  })
-
-export default AppDataSource;
+const dataSource = new DataSource(databaseConnection)
+export default dataSource;
