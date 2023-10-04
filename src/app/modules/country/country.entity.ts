@@ -16,6 +16,6 @@ export class Country {
   @Column(createUniqueColumnOptions(100))
   name_ru: string;
 
-  // @OneToMany(() => Region, (region) => region.country)
-  // region: Region[];
+  @OneToMany(() => Region, (region: Region) => region.country)
+  region: Region[];
 }

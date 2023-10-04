@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "t
 import { createUniqueColumnOptions } from "src/app/helpers/column-helpers";
 import { Region } from "../region/region.entity";
 
-Entity()
+@Entity()
 export class Location {
   @PrimaryGeneratedColumn()
   id: number;
@@ -16,7 +16,7 @@ export class Location {
   @Column(createUniqueColumnOptions(100))
   name_ru: string;
 
-  // @ManyToOne(() => Region, (region) => region.location)
-  // @JoinColumn({name: 'region_id'})
-  // region: Region;
+  @ManyToOne(() => Region, (region: Region) => region.location)
+  @JoinColumn({name: 'region_id'})
+  region: Region;
 }
