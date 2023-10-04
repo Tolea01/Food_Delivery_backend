@@ -15,7 +15,7 @@ import {
   DefaultValuePipe
 } from '@nestjs/common';
 import { User } from './user.entity';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('User CRUD')
 @Controller('user')
