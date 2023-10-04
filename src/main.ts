@@ -1,17 +1,18 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app/app.module";
 import { ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import buildApiDocs from "./app/docs/swagger.builder";
-import ConfigEnv from "./app/config/config.env";
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
+  const configService: ConfigService = new ConfigService();
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ValidationPipe());
 
   buildApiDocs(app);
 
-  await app.listen(ConfigEnv.DB_PORT);
+  await app.listen(configService.get("APP_PORT") || 3000);
 }
 
 bootstrap();

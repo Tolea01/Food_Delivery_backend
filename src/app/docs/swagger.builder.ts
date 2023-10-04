@@ -1,16 +1,17 @@
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import * as process from 'process';
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from "@nestjs/swagger";
+import { ConfigService } from "@nestjs/config";
 
-const buildApiDocs = (app: any) => {
+const buildApiDocs = (app: any): void => {
+  const configService: ConfigService = new ConfigService();
   const config = new DocumentBuilder()
-  .setTitle(process.env.DOCS_TITLE)
-  .setDescription(process.env.DOCS_DESCRIPTION)
-  .setVersion(process.env.DOCS_VERSION)
-  .build();
+    .setTitle(configService.get("DOCS_TITLE") || 'API')
+    .setDescription(configService.get("DOCS_DESCRIPTION") || 'description...')
+    .setVersion(configService.get("DOCS_VERSION") || '1.0')
+    .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup(process.env.DOCS_PATH, app, document);
+  SwaggerModule.setup(configService.get("DOCS_PATH"), app, document);
 };
 
 export default buildApiDocs;

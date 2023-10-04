@@ -1,25 +1,19 @@
 import { MiddlewareConsumer, Module } from "@nestjs/common";
-import { UserModule } from "./modules/user/user.module";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { databaseConfig } from "./config/database";
-import { AuthModule } from "./modules/auth/auth.module";
 import { AuthMiddleware } from "./middleware/auth.middleware";
-import { CountryModule } from "./modules/country/country.module";
-import { LocationModule } from "./modules/location/location.module";
-import { RegionModule } from "./modules/region/region.module";
-import { OrderCoCustomerModule } from "./modules/order_co_customer/order_co_customer.module";
-import publicPaths from "./config/publicPaths";
+import { publicPaths } from './config';
+import AllModules from "./modules";
 
 @Module({
   imports: [
-    UserModule,
-    AuthModule,
-    CountryModule,
-    LocationModule,
-    RegionModule,
-    OrderCoCustomerModule,
+    ...AllModules,
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
-      useFactory: databaseConfig
+      imports: [ConfigModule],
+      useFactory: databaseConfig,
+      inject: [ConfigService]
     })
   ],
   controllers: [],
