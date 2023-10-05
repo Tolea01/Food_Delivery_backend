@@ -2,7 +2,10 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app/app.module";
 import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import * as dotenv from 'dotenv';
 import buildApiDocs from "./app/docs/swagger.builder";
+
+dotenv.config();
 
 async function bootstrap(): Promise<void> {
   const configService: ConfigService = new ConfigService();

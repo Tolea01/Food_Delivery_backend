@@ -1,9 +1,9 @@
 import { MiddlewareConsumer, Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { databaseConfig } from "./config/database";
 import { AuthMiddleware } from "./middleware/auth.middleware";
-import { publicPaths } from './config';
+import { publicPaths } from "./config";
 import AllModules from "./modules";
 
 @Module({
@@ -11,9 +11,7 @@ import AllModules from "./modules";
     ...AllModules,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: databaseConfig,
-      inject: [ConfigService]
+      useFactory: () => databaseConfig(),
     })
   ],
   controllers: [],

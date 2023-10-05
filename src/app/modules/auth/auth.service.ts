@@ -15,10 +15,10 @@ export class AuthService {
   ) { }
 
   async validateUser(payload: LoginDto): Promise<any> {
-    const user = await this.userService.getUserByUsername(payload.username);
+    const user: User = await this.userService.getUserByUsername(payload.username);
 
     if (user) {
-      const passwordIsMatch = await argon2.verify(user.password, payload.password);
+      const passwordIsMatch: boolean = await argon2.verify(user.password, payload.password);
 
       if (passwordIsMatch) {
         const userData = { ...user }
@@ -55,7 +55,7 @@ export class AuthService {
 
     const { sub } = credentials;
 
-    const user = await this.userService.getUserById(sub);
+    const user: User = await this.userService.getUserById(sub);
 
     if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
