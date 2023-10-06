@@ -1,9 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { createUniqueColumnOptions } from "src/app/helpers/column-helpers";
-import { Region } from "../region/region.entity";
+import { Region } from "../../region/entities/region.entity";
 
 @Entity()
-export class Country {
+export class Location {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -16,6 +16,7 @@ export class Country {
   @Column(createUniqueColumnOptions(100))
   name_ru: string;
 
-  @OneToMany(() => Region, (region: Region) => region.country)
-  region: Region[];
+  @ManyToOne(() => Region, (region: Region) => region.location)
+  @JoinColumn({name: 'region_id'})
+  region: Region;
 }

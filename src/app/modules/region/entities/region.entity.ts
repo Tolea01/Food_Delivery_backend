@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { createUniqueColumnOptions } from "src/app/helpers/column-helpers";
-import { Country } from "../country/country.entity";
-import { Location } from "../location/location.entity";
+import { Country } from "../../country/entities/country.entity";
+import { Location } from "../../location/entities/location.entity";
 
 
 @Entity()

@@ -2,7 +2,7 @@ import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import paginationConfig from "src/app/config/pagination";
-import { User } from "./user.entity";
+import { User } from "./entities/user.entity";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 
 import {

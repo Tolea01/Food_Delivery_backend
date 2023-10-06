@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
-import { UserRole } from './user-role.enum';
+import { UserRole } from '../user-role.enum';
 import { createUniqueColumnOptions } from 'src/app/helpers/column-helpers';
 
 @Entity()

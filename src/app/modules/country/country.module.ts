@@ -2,8 +2,8 @@ import { Module } from "@nestjs/common";
 import { CountryController } from "./country.controller";
 import { CountryService } from "./country.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Country } from "./country.entity";
-import { Region } from "../region/region.entity";
+import { Country } from "./entities/country.entity";
+import { Region } from "../region/entities/region.entity";
 
 @Module({
   imports: [
