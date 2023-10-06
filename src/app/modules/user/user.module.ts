@@ -4,16 +4,13 @@ import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import jwtConfig from 'src/app/config/jwt';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
       useFactory: jwtConfig,
-      inject: [ConfigService]
     })
   ],
   controllers: [UserController],
