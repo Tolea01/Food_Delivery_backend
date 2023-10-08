@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CountryService } from "./country.service";
 import { CreateGeoDto } from "../dto/create-geo.dto";
 import { Country } from "./entities/country.entity";
@@ -25,8 +25,8 @@ export class CountryController {
     summary: "Get country by params",
     description: "If parameters are not specified, all countries will be returned"
   })
-  @ApiParam({ name: "name", required: false })
-  @ApiParam({ name: "sortBy", required: false })
+  @ApiQuery({ name: "name", required: false })
+  @ApiQuery({ name: "sortBy", required: false })
   async getAllCountries(@Query("sortBy") sortBy?: string, @Query("name") name?: string) {
     return this.countryService.getAllCountries(sortBy, name);
   }
