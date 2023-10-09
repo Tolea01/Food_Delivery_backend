@@ -91,7 +91,7 @@ export class UserService {
 
       if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
-      if (updateUser !== user.username) {
+      if (updateUser.username) {
         updatedFields.username = updateUser.username;
       }
 

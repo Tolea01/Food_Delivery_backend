@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Country } from "./entities/country.entity";
-import { DeleteResult, EntityManager, Repository } from "typeorm";
-import { CreateGeoDto } from "../dto/create-geo.dto";
-import appError from "../../../config/appError";
+import { DeleteResult, EntityManager, Repository, UpdateResult } from "typeorm";
+import { CreateCountryDto } from "./dto/create-country.dto";
+import { UpdateCountryDto } from "./dto/update-country.dto";
 
 @Injectable()
 export class CountryService {
@@ -13,28 +13,23 @@ export class CountryService {
   ) {
   }
 
-  private countryProps(country: CreateGeoDto) {
-    return {
-      name_en: country.name_en,
-      name_ro: country.name_ro,
-      name_ru: country.name_ru
-    };
-  }
-
-  async create(createCountryData: CreateGeoDto): Promise<Country> {
+  async create(createCountryData: CreateCountryDto): Promise<Country | void> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       const existCountry: Country = await transactionalEntityManager.findOne(Country,
         {
-          where: this.countryProps(createCountryData)
+          where: createCountryData
         });
 
-      if (existCountry) throw new BadRequestException(appError.COUNTRY_EXIST);
+      if (existCountry) {
+        return;
+      } else {
+        return await transactionalEntityManager.save(Country, createCountryData);
+      }
 
-      return await transactionalEntityManager.save(Country, this.countryProps(createCountryData));
     });
   }
 
-  async getAllCountries(sortBy?: string, name?: string) {
+  async getAllCountries(sortBy?: string, name?: string): Promise<any> {
     let queryBuilder = await this.countryRepository.createQueryBuilder("country");
 
     if (name) {
@@ -59,6 +54,33 @@ export class CountryService {
     }
 
     return await this.countryRepository.find();
+  }
+
+  async getCountryById(id: number): Promise<Country> {
+    return await this.countryRepository.findOne({ where: { id } });
+  }
+
+  async updateCountry(id: number, updateCountry: UpdateCountryDto): Promise<UpdateResult> {
+    return this.entityManager.transaction(async transactionalEntityManager => {
+      const country: Country = await this.getCountryById(id);
+      const updatedFields: Partial<Country> = {};
+
+      if (!country) throw new NotFoundException();
+
+      if (updateCountry.name_en) {
+        updatedFields.name_en = updateCountry.name_en;
+      }
+
+      if (updateCountry.name_ro) {
+        updatedFields.name_ro = updateCountry.name_ro;
+      }
+
+      if (updateCountry.name_ru) {
+        updatedFields.name_ru = updateCountry.name_ru;
+      }
+
+      return await transactionalEntityManager.update(Country, id, updatedFields);
+    });
   }
 
   async deleteCountry(id: number): Promise<void> {

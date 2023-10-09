@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString, Length } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class CreateGeoDto {
+export class CreateLocationDto {
   @IsNotEmpty()
   @IsString()
   @Length(3, 100)
@@ -19,4 +19,8 @@ export class CreateGeoDto {
   @Length(3, 100)
   @ApiProperty({ example: "name_ru (russian language)" })
   name_ru: string;
+
+  @IsNotEmpty()
+  @ApiProperty({ example: "region id" })
+  region_id: number;
 }

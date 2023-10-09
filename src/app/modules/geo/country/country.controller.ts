@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CountryService } from "./country.service";
-import { CreateGeoDto } from "../dto/create-geo.dto";
+import { CreateCountryDto } from "./dto/create-country.dto";
 import { Country } from "./entities/country.entity";
+import { UpdateCountryDto } from "./dto/update-country.dto";
+import { UpdateResult } from "typeorm";
 
 @ApiTags("Country CRUD")
 @ApiBearerAuth()
@@ -16,7 +18,7 @@ export class CountryController {
     summary: "Create a new Country",
     description: "The request body should contain an object named \"createCountryData\""
   })
-  async create(@Body() createCountryData: CreateGeoDto): Promise<Country> {
+  async create(@Body() createCountryData: CreateCountryDto): Promise<Country | void> {
     return await this.countryService.create(createCountryData);
   }
 
@@ -27,8 +29,23 @@ export class CountryController {
   })
   @ApiQuery({ name: "name", required: false })
   @ApiQuery({ name: "sortBy", required: false })
-  async getAllCountries(@Query("sortBy") sortBy?: string, @Query("name") name?: string) {
+  async getAllCountries(@Query("sortBy") sortBy?: string, @Query("name") name?: string):  Promise<any> {
     return this.countryService.getAllCountries(sortBy, name);
+  }
+
+  @Get(":id")
+  @ApiOperation({summary: "Get country by id"})
+  async getCountryById(@Param("id", ParseIntPipe) id: number): Promise<Country> {
+    return await this.countryService.getCountryById(id);
+  }
+
+  @Patch(":id")
+  @ApiOperation({
+    summary: "Update country by id",
+    description: "This route allows updating a field by id"
+  })
+  async updateCountry(@Param("id", ParseIntPipe) id: number, @Body() updateCountry: UpdateCountryDto): Promise<UpdateResult> {
+    return this.countryService.updateCountry(id, updateCountry);
   }
 
   @Delete(":id")
