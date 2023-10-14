@@ -18,10 +18,10 @@ export class Region {
   @Column(createUniqueColumnOptions(100))
   name_ru: string;
 
-  @ManyToOne(() => Country, (country) => country.id)
+  @ManyToOne(() => Country, (country: Country) => country.id)
   @JoinColumn({ name: "country_id" })
   country_id: Country;
 
-  @OneToMany(() => Location, (location) => location.region_id)
+  @OneToMany(() => Location, (location: Location) => location.region_id)
   locations: Location[];
 }

@@ -16,7 +16,7 @@ export class RegionController {
     summary: "Create a new Region",
     description: "The request body should contain an object named \"createRegionData\""
   })
-  async create(@Body() createRegionData: CreateRegionDto): Promise<Region> {
+  async create(@Body() createRegionData: CreateRegionDto): Promise<Region | undefined> {
     return await this.regionService.create(createRegionData);
   }
 }

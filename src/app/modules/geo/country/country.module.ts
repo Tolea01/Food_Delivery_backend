@@ -10,7 +10,8 @@ import { Region } from "../region/entities/region.entity";
     TypeOrmModule.forFeature([Country, Region])
   ],
   controllers: [CountryController],
-  providers: [CountryService]
+  providers: [CountryService],
+  exports: [CountryService]
 })
 export class CountryModule {
 }
