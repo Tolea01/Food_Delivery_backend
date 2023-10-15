@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Region } from "./entities/region.entity";
-import { DeleteResult, EntityManager, Repository, UpdateResult } from "typeorm";
+import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
 import { CreateRegionDto } from "./dto/create-region.dto";
 import { CountryService } from "../country/country.service";
 import { Country } from "../country/entities/country.entity";
 import { UpdateRegionDto } from "./dto/update-region.dto";
-import { GeoQueryResult } from "../../../helpers/interfaces";
+import { GeoQueryResult, UpdatedRegionFields } from "../../../interfaces/interfaces";
+import appError from "../../../config/appError";
 
 @Injectable()
 export class RegionService {
@@ -18,7 +19,7 @@ export class RegionService {
   }
 
   async create(createRegionData: CreateRegionDto): Promise<Region | undefined> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Region | undefined> => {
       const { name_en, name_ro, name_ru, country_id } = createRegionData;
       const existRegion: Region | undefined = await transactionalEntityManager.findOne(Region, {
         where: { name_en, name_ro, name_ru, country_id: { id: country_id } }
@@ -28,9 +29,6 @@ export class RegionService {
         return undefined;
       } else {
         const country: Country = await this.countryService.getCountryById(country_id);
-
-        if (!country) throw new NotFoundException();
-
         const region: Region = this.entityManager.create(Region, {
           name_en,
           name_ro,
@@ -44,7 +42,7 @@ export class RegionService {
   }
 
   async getAllRegions(sortBy?: string, name?: string): Promise<GeoQueryResult[]> {
-    let queryBuilder = await this.regionRepository.createQueryBuilder("region");
+    let queryBuilder: SelectQueryBuilder<Region> = await this.regionRepository.createQueryBuilder("region");
 
     if (name) {
       queryBuilder = queryBuilder.where(
@@ -70,14 +68,16 @@ export class RegionService {
     return await this.regionRepository.find();
   }
 
-  async getRegionById(id: number): Promise<Region> {
-    return this.regionRepository.findOne({ where: { id } });
+  async getRegionById(id: number): Promise<Region | undefined> {
+    const region: Region | undefined = await this.regionRepository.findOne({ where: { id } });
+
+    if (!region) throw new NotFoundException(appError.REGION_NOT_FOUND);
+
+    return region;
   }
 
   async getRegionsByCountry(countryId: number): Promise<Region[] | undefined> {
     const country: Country = await this.countryService.getCountryById(countryId);
-
-    if (!country) throw new NotFoundException();
 
     return await this.regionRepository.find({
       where: {
@@ -86,12 +86,10 @@ export class RegionService {
     });
   }
 
-  async updateRegion(id: number, updateRegionData: UpdateRegionDto): Promise<UpdateResult> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
+  async updateRegion(id: number, updateRegionData: UpdateRegionDto): Promise<UpdatedRegionFields> {
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedRegionFields> => {
       const region: Region = await this.getRegionById(id);
       const updatedFields: Partial<Region> = {};
-
-      if (!region) throw new NotFoundException();
 
       if (updateRegionData.name_en) {
         updatedFields.name_en = updateRegionData.name_en;
@@ -110,14 +108,16 @@ export class RegionService {
         updatedFields.country_id = country;
       }
 
-      return await transactionalEntityManager.update(Region, id, updatedFields);
+      const updateRegion: UpdateResult = await transactionalEntityManager.update(Region, id, updatedFields);
+
+      return updatedFields;
 
     });
   }
 
-  async removeRegion(id: number): Promise<DeleteResult> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
-      return transactionalEntityManager.delete(Region, id);
+  async removeRegion(id: number): Promise<void> {
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+      const removeRegion: DeleteResult = await transactionalEntityManager.delete(Region, id);
     });
   }
 }

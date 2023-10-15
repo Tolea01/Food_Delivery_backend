@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Country } from "./entities/country.entity";
-import { DeleteResult, EntityManager, Repository, UpdateResult } from "typeorm";
+import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
 import { CreateCountryDto } from "./dto/create-country.dto";
 import { UpdateCountryDto } from "./dto/update-country.dto";
-import { GeoQueryResult } from "../../../helpers/interfaces";
+import { GeoQueryResult, UpdatedCountryFields } from "../../../interfaces/interfaces";
+import appError from "../../../config/appError";
 
 @Injectable()
 export class CountryService {
@@ -15,7 +16,7 @@ export class CountryService {
   }
 
   async create(createCountryData: CreateCountryDto): Promise<Country | undefined> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Country | undefined> => {
       const existCountry: Country | undefined = await transactionalEntityManager.findOne(Country,
         {
           where: createCountryData
@@ -31,7 +32,7 @@ export class CountryService {
   }
 
   async getAllCountries(sortBy?: string, name?: string): Promise<GeoQueryResult[]> {
-    let queryBuilder = await this.countryRepository.createQueryBuilder("country");
+    let queryBuilder: SelectQueryBuilder<Country> = await this.countryRepository.createQueryBuilder("country");
 
     if (name) {
       queryBuilder = queryBuilder.where(
@@ -57,16 +58,18 @@ export class CountryService {
     return await this.countryRepository.find();
   }
 
-  async getCountryById(id: number): Promise<Country> {
-    return await this.countryRepository.findOne({ where: { id } });
+  async getCountryById(id: number): Promise<Country | undefined> {
+    const country: Country = await this.countryRepository.findOne({ where: { id } });
+
+    if (!country) throw new NotFoundException(appError.COUNTRY_NOT_FOUND);
+
+    return country;
   }
 
-  async updateCountry(id: number, updateCountry: UpdateCountryDto): Promise<UpdateResult> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
+  async updateCountry(id: number, updateCountry: UpdateCountryDto): Promise<UpdatedCountryFields> {
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedCountryFields> => {
       const country: Country = await this.getCountryById(id);
       const updatedFields: Partial<Country> = {};
-
-      if (!country) throw new NotFoundException();
 
       if (updateCountry.name_en) {
         updatedFields.name_en = updateCountry.name_en;
@@ -80,12 +83,14 @@ export class CountryService {
         updatedFields.name_ru = updateCountry.name_ru;
       }
 
-      return await transactionalEntityManager.update(Country, id, updatedFields);
+      const updateResult: UpdateResult = await transactionalEntityManager.update(Country, id, updatedFields);
+
+      return updatedFields;
     });
   }
 
   async deleteCountry(id: number): Promise<void> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
       const deleteCountry: DeleteResult = await transactionalEntityManager.delete(Country, id);
     });
   }

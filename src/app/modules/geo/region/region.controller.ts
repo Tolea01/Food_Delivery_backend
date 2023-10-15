@@ -4,7 +4,7 @@ import { RegionService } from "./region.service";
 import { CreateRegionDto } from "./dto/create-region.dto";
 import { Region } from "./entities/region.entity";
 import { Country } from "../country/entities/country.entity";
-import { GeoQueryResult } from "../../../helpers/interfaces";
+import { GeoQueryResult, UpdatedRegionFields } from "../../../interfaces/interfaces";
 import { UpdateCountryDto } from "../country/dto/update-country.dto";
 import { DeleteResult, UpdateResult } from "typeorm";
 import { UpdateRegionDto } from "./dto/update-region.dto";
@@ -34,19 +34,19 @@ export class RegionController {
   @ApiQuery({ name: "name", required: false })
   @ApiQuery({ name: "sortBy", required: false })
   async getAllRegions(@Query("sortBy") sortBy?: string, @Query("name") name?: string): Promise<GeoQueryResult[]> {
-    return this.regionService.getAllRegions(sortBy, name);
+    return await this.regionService.getAllRegions(sortBy, name);
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get region by id" })
-  async getRegionById(@Param("id", ParseIntPipe) id: number): Promise<Region> {
+  async getRegionById(@Param("id", ParseIntPipe) id: number): Promise<Region | undefined> {
     return await this.regionService.getRegionById(id);
   }
 
   @Get("by-country/:countryId")
   @ApiOperation({ summary: "Get region by countryId" })
   async getRegionsByCountry(@Param("countryId", ParseIntPipe) countryId: number): Promise<Region[]> {
-    return this.regionService.getRegionsByCountry(countryId);
+    return await this.regionService.getRegionsByCountry(countryId);
   };
 
   @Patch(":id")
@@ -54,13 +54,13 @@ export class RegionController {
     summary: "Update region by id",
     description: "This route allows updating a field by id"
   })
-  async updateRegion(@Param("id", ParseIntPipe) id: number, @Body() updateRegion: UpdateRegionDto): Promise<UpdateResult> {
-    return this.regionService.updateRegion(id, updateRegion);
+  async updateRegion(@Param("id", ParseIntPipe) id: number, @Body() updateRegion: UpdateRegionDto): Promise<UpdatedRegionFields> {
+    return await this.regionService.updateRegion(id, updateRegion);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete region by id" })
-  async deleteCountry(@Param("id", ParseIntPipe) id: number): Promise<DeleteResult> {
-    return this.regionService.removeRegion(id);
+  async deleteCountry(@Param("id", ParseIntPipe) id: number): Promise<void> {
+    return await this.regionService.removeRegion(id);
   }
 }

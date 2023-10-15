@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { CreateUserDto } from "./dto/create-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
-import { Repository, EntityManager } from "typeorm";
+import { Repository, EntityManager, UpdateResult, DeleteResult } from "typeorm";
 import * as argon2 from "argon2";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { paginationConfig } from "src/app/config";
@@ -25,16 +25,16 @@ export class UserService {
     };
   }
 
-  async create(userData: CreateUserDto): Promise<Partial<User>> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
-      const existUser: User = await transactionalEntityManager.findOne(User,
+  async create(userData: CreateUserDto): Promise<User> {
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<User> => {
+      const existUser: User | undefined = await transactionalEntityManager.findOne(User,
         {
           where: { username: userData.username }
         });
 
       if (existUser) throw new BadRequestException(appError.USER_EXIST);
 
-      const user = await transactionalEntityManager.save(User, {
+      const user: User = await transactionalEntityManager.save(User, {
         username: userData.username,
         password: await argon2.hash(userData.password),
         role: userData.role
@@ -67,29 +67,31 @@ export class UserService {
     });
 
     const totalUsers: number = await this.userRepository.count();
-    const data: User[] = items.map(item => this.userProps(item));
+    const data: User[] = items.map((item: User) => this.userProps(item));
 
     return data;
   }
 
   async getUserById(id: number): Promise<User | undefined> {
-    const user: User = await this.userRepository.findOne({ where: { id } });
+    const user: User | undefined = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
     return this.userProps(user);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const user: User = await this.userRepository.findOne({ where: { username } });
+    const user: User | undefined = await this.userRepository.findOne({ where: { username } });
+
+    if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
     return user;
   }
 
   async updateUser(id: number, updateUser: UpdateUserDto): Promise<Partial<User>> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
-      const user: User = await this.getUserById(id);
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<User>> => {
+      const user: User | undefined = await this.getUserById(id);
       const updatedFields: Partial<User> = {};
-
-      if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
       if (updateUser.username) {
         updatedFields.username = updateUser.username;
@@ -103,19 +105,19 @@ export class UserService {
         updatedFields.role = updateUser.role;
       }
 
-      const updateResult = await transactionalEntityManager.update(User, id, updatedFields);
+      const updateResult: UpdateResult = await transactionalEntityManager.update(User, id, updatedFields);
 
       return {
         username: updatedFields.username,
-        password: "Password updated successfully",
+        password: updatedFields.password ? "Password updated successfully" : undefined,
         role: updatedFields.role
       };
     });
   }
 
   async removeUser(id: number): Promise<void> {
-    return this.entityManager.transaction(async transactionalEntityManager => {
-      const removeResult = await transactionalEntityManager.delete(User, id);
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+      const removeResult: DeleteResult = await transactionalEntityManager.delete(User, id);
     });
   }
 }

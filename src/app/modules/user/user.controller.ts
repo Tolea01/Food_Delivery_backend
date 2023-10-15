@@ -30,7 +30,7 @@ export class UserController {
     summary: "User registration",
     description: "This route allows the creation/registration of a user"
   })
-  async create(@Body() createUser: CreateUserDto): Promise<Partial<User>> {
+  async create(@Body() createUser: CreateUserDto): Promise<User> {
     return await this.userService.create(createUser);
   }
 

@@ -22,6 +22,6 @@ export class Region {
   @JoinColumn({ name: "country_id" })
   country_id: Country;
 
-  @OneToMany(() => Location, (location: Location) => location.region_id)
+  @OneToMany(() => Location, (location: Location) => location.region_id, { onDelete: "CASCADE" })
   locations: Location[];
 }

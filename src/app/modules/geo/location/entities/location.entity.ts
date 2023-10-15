@@ -16,7 +16,7 @@ export class Location {
   @Column(createUniqueColumnOptions(100))
   name_ru: string;
 
-  @ManyToOne(() => Region, (region: Region) => region.id)
-  @JoinColumn({name: 'region_id'})
+  @ManyToOne(() => Region, (region: Region) => region.id, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "region_id" })
   region_id: Region;
 }

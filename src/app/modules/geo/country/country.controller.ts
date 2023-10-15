@@ -5,6 +5,7 @@ import { CreateCountryDto } from "./dto/create-country.dto";
 import { Country } from "./entities/country.entity";
 import { UpdateCountryDto } from "./dto/update-country.dto";
 import { UpdateResult } from "typeorm";
+import { GeoQueryResult, UpdatedCountryFields } from "../../../interfaces/interfaces";
 
 @ApiTags("Country CRUD")
 @ApiBearerAuth()
@@ -18,7 +19,7 @@ export class CountryController {
     summary: "Create a new Country",
     description: "The request body should contain an object named \"createCountryData\""
   })
-  async create(@Body() createCountryData: CreateCountryDto): Promise<Country | void> {
+  async create(@Body() createCountryData: CreateCountryDto): Promise<Country | undefined> {
     return await this.countryService.create(createCountryData);
   }
 
@@ -29,13 +30,13 @@ export class CountryController {
   })
   @ApiQuery({ name: "name", required: false })
   @ApiQuery({ name: "sortBy", required: false })
-  async getAllCountries(@Query("sortBy") sortBy?: string, @Query("name") name?: string):  Promise<any> {
-    return this.countryService.getAllCountries(sortBy, name);
+  async getAllCountries(@Query("sortBy") sortBy?: string, @Query("name") name?: string): Promise<GeoQueryResult[]> {
+    return await this.countryService.getAllCountries(sortBy, name);
   }
 
   @Get(":id")
-  @ApiOperation({summary: "Get country by id"})
-  async getCountryById(@Param("id", ParseIntPipe) id: number): Promise<Country> {
+  @ApiOperation({ summary: "Get country by id" })
+  async getCountryById(@Param("id", ParseIntPipe) id: number): Promise<Country | undefined> {
     return await this.countryService.getCountryById(id);
   }
 
@@ -44,13 +45,13 @@ export class CountryController {
     summary: "Update country by id",
     description: "This route allows updating a field by id"
   })
-  async updateCountry(@Param("id", ParseIntPipe) id: number, @Body() updateCountry: UpdateCountryDto): Promise<UpdateResult> {
-    return this.countryService.updateCountry(id, updateCountry);
+  async updateCountry(@Param("id", ParseIntPipe) id: number, @Body() updateCountry: UpdateCountryDto): Promise<UpdatedCountryFields> {
+    return await this.countryService.updateCountry(id, updateCountry);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete country by id" })
   async deleteCountry(@Param("id", ParseIntPipe) id: number): Promise<void> {
-    return this.countryService.deleteCountry(id);
+    return await this.countryService.deleteCountry(id);
   }
 }
