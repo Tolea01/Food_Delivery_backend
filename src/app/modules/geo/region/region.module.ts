@@ -5,14 +5,15 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Region } from "./entities/region.entity";
 import { Country } from "../country/entities/country.entity";
 import { Location } from "../location/entities/location.entity";
-import { CountryService } from "../country/country.service";
+import { CountryModule } from "../country/country.module";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Region, Country, Location])
+    TypeOrmModule.forFeature([Region, Country, Location]),
+    CountryModule
   ],
   controllers: [RegionController],
-  providers: [RegionService, CountryService],
+  providers: [RegionService],
   exports: [RegionService]
 })
 export class RegionModule {

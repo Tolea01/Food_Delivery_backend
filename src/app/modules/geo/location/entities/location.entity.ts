@@ -16,10 +16,7 @@ export class Location {
   @Column(createUniqueColumnOptions(100))
   name_ru: string;
 
-  @Column()
-  region_id: number
-
   @ManyToOne(() => Region, (region: Region) => region.id)
   @JoinColumn({name: 'region_id'})
-  region: Region;
+  region_id: Region;
 }

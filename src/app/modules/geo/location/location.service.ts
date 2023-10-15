@@ -1,29 +1,44 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Location } from "./entities/location.entity";
-import { EntityManager, Repository } from "typeorm";
+import { DeleteResult, EntityManager, Repository, UpdateResult } from "typeorm";
 import { CreateLocationDto } from "./dto/create-location.dto";
 import { UpdateLocationDto } from "./dto/update-location.dto";
+import { RegionService } from "../region/region.service";
+import { Region } from "../region/entities/region.entity";
 
 @Injectable()
 export class LocationService {
   constructor(
     @InjectRepository(Location) private readonly locationRepository: Repository<Location>,
+    private readonly regionService: RegionService,
     private readonly entityManager: EntityManager
   ) {
   }
 
   async create(createLocationData: CreateLocationDto): Promise<Location> {
     return this.entityManager.transaction(async transactionalEntityManager => {
-      const existLocation: Location = await transactionalEntityManager.findOne(Location,
+      const { name_en, name_ro, name_ru, region_id } = createLocationData;
+      const existLocation: Location | undefined = await transactionalEntityManager.findOne(Location,
         {
-          where: createLocationData
+          where: { name_en, name_ro, name_ru, region_id: { id: region_id } }
         });
 
       if (existLocation) {
         return;
       } else {
-        return await transactionalEntityManager.save(Location, createLocationData);
+        const region: Region = await this.regionService.getRegionById(region_id);
+
+        if (!region) throw new NotFoundException();
+
+        const location: Location = this.entityManager.create(Location, {
+          name_en,
+          name_ru,
+          name_ro,
+          region_id: region
+        });
+
+        return await transactionalEntityManager.save(Location, location);
       }
     });
   }
@@ -41,8 +56,8 @@ export class LocationService {
     }
 
     if (sortBy) {
-      querybuilder = querybuilder.orderBy(`location.${sortBy}, "ASC"`);
-      querybuilder = querybuilder.select([`location.id, location.${sortBy}`]);
+      querybuilder = querybuilder.orderBy(`location.${sortBy}`, "ASC");
+      querybuilder = querybuilder.select([`location.id`, `location.${sortBy}`]);
 
       const locations: Location[] = await querybuilder.getMany();
 
@@ -50,24 +65,27 @@ export class LocationService {
         id: location.id,
         [sortBy]: location[sortBy]
       }));
-
-      return await this.locationRepository.find();
     }
+    return await this.locationRepository.find();
   }
 
   async getLocationById(id: number): Promise<Location> {
     return await this.locationRepository.findOne({ where: { id } });
   }
 
-  async getLocationsForRegion(regionId: number): Promise<Location[]> {
+  async getLocationsByRegion(regionId: number): Promise<Location[]> {
+    const region: Region = await this.regionService.getRegionById(regionId);
+
+    if (!region) throw new NotFoundException();
+
     return await this.locationRepository.find({
       where: {
-        region_id: regionId
+        region_id: { id: regionId }
       }
     });
   }
 
-  async updateLocation(id: number, updateLocationData: UpdateLocationDto) {
+  async updateLocation(id: number, updateLocationData: UpdateLocationDto): Promise<UpdateResult> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       const location: Location = await this.getLocationById(id);
       const updatedFields: Partial<Location> = {};
@@ -86,12 +104,17 @@ export class LocationService {
         updatedFields.name_ru = updateLocationData.name_ru;
       }
 
+      if (updateLocationData.region_id) {
+        const region: Region = await this.regionService.getRegionById(updateLocationData.region_id);
+        updatedFields.region_id = region;
+      }
+
       return await transactionalEntityManager.update(Location, id, updatedFields);
 
     });
   }
 
-  async removeLocation(id: number) {
+  async removeLocation(id: number): Promise<DeleteResult> {
     return this.entityManager.transaction(async transactionalEntityManager => {
       return transactionalEntityManager.delete(Location, id);
     });

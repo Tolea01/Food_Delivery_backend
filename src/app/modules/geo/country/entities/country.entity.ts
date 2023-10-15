@@ -17,5 +17,5 @@ export class Country {
   name_ru: string;
 
   @OneToMany(() => Region, (region: Region) => region.country_id)
-  region: Region[];
+  regions: Region[];
 }

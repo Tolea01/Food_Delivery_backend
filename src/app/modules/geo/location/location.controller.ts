@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger"
 import { CreateLocationDto } from "./dto/create-location.dto";
 import { Location } from "./entities/location.entity";
 import { UpdateLocationDto } from "./dto/update-location.dto";
+import { DeleteResult, UpdateResult } from "typeorm";
 
 @ApiTags("Location CRUD")
 @ApiBearerAuth()
@@ -41,7 +42,7 @@ export class LocationController {
   @Get("by-region/:regionId")
   @ApiOperation({ summary: "Get location by regionId" })
   async getLocationsForRegion(@Param("regionId", ParseIntPipe) regionId: number): Promise<Location[]> {
-    return this.locationService.getLocationsForRegion(regionId);
+    return this.locationService.getLocationsByRegion(regionId);
   };
 
   @Patch(":id")
@@ -49,13 +50,13 @@ export class LocationController {
     summary: "Update location by id",
     description: "This route allows updating a field by id"
   })
-  async updateLocation(@Param("id", ParseIntPipe) id: number, @Body() updateLocation: UpdateLocationDto) {
+  async updateLocation(@Param("id", ParseIntPipe) id: number, @Body() updateLocation: UpdateLocationDto): Promise<UpdateResult> {
     return this.locationService.updateLocation(id, updateLocation);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete location by id" })
-  async removeLocation(@Param("id", ParseIntPipe) id: number) {
+  async removeLocation(@Param("id", ParseIntPipe) id: number): Promise<DeleteResult> {
     return await this.locationService.removeLocation(id);
   };
 }

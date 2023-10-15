@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Country } from "./entities/country.entity";
 import { DeleteResult, EntityManager, Repository, UpdateResult } from "typeorm";
 import { CreateCountryDto } from "./dto/create-country.dto";
 import { UpdateCountryDto } from "./dto/update-country.dto";
+import { GeoQueryResult } from "../../../helpers/interfaces";
 
 @Injectable()
 export class CountryService {
@@ -13,15 +14,15 @@ export class CountryService {
   ) {
   }
 
-  async create(createCountryData: CreateCountryDto): Promise<Country | void> {
+  async create(createCountryData: CreateCountryDto): Promise<Country | undefined> {
     return this.entityManager.transaction(async transactionalEntityManager => {
-      const existCountry: Country = await transactionalEntityManager.findOne(Country,
+      const existCountry: Country | undefined = await transactionalEntityManager.findOne(Country,
         {
           where: createCountryData
         });
 
       if (existCountry) {
-        return;
+        return undefined;
       } else {
         return await transactionalEntityManager.save(Country, createCountryData);
       }
@@ -29,7 +30,7 @@ export class CountryService {
     });
   }
 
-  async getAllCountries(sortBy?: string, name?: string): Promise<any> {
+  async getAllCountries(sortBy?: string, name?: string): Promise<GeoQueryResult[]> {
     let queryBuilder = await this.countryRepository.createQueryBuilder("country");
 
     if (name) {
