@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Region } from "./entities/region.entity";
 import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
@@ -19,14 +19,14 @@ export class RegionService {
   }
 
   async create(createRegionData: CreateRegionDto): Promise<Region | undefined> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Region | undefined> => {
+    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Region> => {
       const { name_en, name_ro, name_ru, country_id } = createRegionData;
       const existRegion: Region | undefined = await transactionalEntityManager.findOne(Region, {
         where: { name_en, name_ro, name_ru, country_id: { id: country_id } }
       });
 
       if (existRegion) {
-        return undefined;
+        throw new BadRequestException(appError.REGION_EXIST);
       } else {
         const country: Country = await this.countryService.getCountryById(country_id);
         const region: Region = this.entityManager.create(Region, {

@@ -19,7 +19,7 @@ export class CountryController {
     summary: "Create a new Country",
     description: "The request body should contain an object named \"createCountryData\""
   })
-  async create(@Body() createCountryData: CreateCountryDto): Promise<Country | undefined> {
+  async create(@Body() createCountryData: CreateCountryDto): Promise<Country> {
     return await this.countryService.create(createCountryData);
   }
 

@@ -19,7 +19,7 @@ export class LocationController {
     summary: "Create a new Location",
     description: "The request body should contain an object named \"createLocationData\""
   })
-  async create(@Body() createlocationData: CreateLocationDto): Promise<Location | undefined> {
+  async create(@Body() createlocationData: CreateLocationDto): Promise<Location> {
     return await this.locationService.create(createlocationData);
   }
 
