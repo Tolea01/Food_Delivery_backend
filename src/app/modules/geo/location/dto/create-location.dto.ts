@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Length } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString, Length } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateLocationDto {
@@ -21,6 +21,7 @@ export class CreateLocationDto {
   name_ru: string;
 
   @IsNotEmpty()
+  @IsNumber()
   @ApiProperty({ example: "region id" })
   region_id: number;
 }

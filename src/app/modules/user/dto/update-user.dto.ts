@@ -6,12 +6,12 @@ import { UserRole } from "../entities/user-role.enum";
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsString()
-  @Length(3, 50, { message: "Username must be between 3 and 50 characters!" })
+  @Length(3, 50)
   @ApiProperty({ required: false, example: "new username" })
   username?: string;
 
   @IsString()
-  @Length(6, 30, { message: "Password must be between 6 and 30 characters!" })
+  @Length(6, 30)
   @ApiProperty({ required: false, example: "new password" })
   password?: string;
 
