@@ -26,4 +26,15 @@ interface UpdatedRegionFields extends UpdatedCountryFields {
   country_id?: Country;
 }
 
-export { GeoQueryResult, UserData, UpdatedCountryFields, UpdatedLocationFields, UpdatedRegionFields };
+interface UpdateCustomerFields {
+  name?: string;
+}
+
+export {
+  GeoQueryResult,
+  UserData,
+  UpdatedCountryFields,
+  UpdatedLocationFields,
+  UpdatedRegionFields,
+  UpdateCustomerFields
+};
