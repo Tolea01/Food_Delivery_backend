@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { OrderCoCustomer } from "./entities/order_co_customer.entity";
+import { OrderCoCustomer } from "./entities/order-co-customer.entity";
 import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
 import { CreateCustomerDto } from "./dto/create-customer.dto";
 import appError from "../../config/appError";

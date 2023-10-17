@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { OrderCoCustomerController } from "./order_co_customer.controller";
-import { OrderCoCustomerService } from "./order_co_customer.service";
+import { OrderCoCustomerController } from "./order-co-customer.controller";
+import { OrderCoCustomerService } from "./order-co-customer.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { OrderCoCustomer } from "./entities/order_co_customer.entity";
+import { OrderCoCustomer } from "./entities/order-co-customer.entity";
 
 @Module({
   imports: [

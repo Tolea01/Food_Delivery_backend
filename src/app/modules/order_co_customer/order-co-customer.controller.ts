@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
-import { OrderCoCustomerService } from "./order_co_customer.service";
+import { OrderCoCustomerService } from "./order-co-customer.service";
 import { CreateCustomerDto } from "./dto/create-customer.dto";
-import { OrderCoCustomer } from "./entities/order_co_customer.entity";
+import { OrderCoCustomer } from "./entities/order-co-customer.entity";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 import { UpdateCustomerFields } from "../../interfaces/interfaces";
