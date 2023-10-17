@@ -15,10 +15,7 @@ export class LocationController {
   }
 
   @Post("create")
-  @ApiOperation({
-    summary: "Create a new Location",
-    description: "The request body should contain an object named \"createLocationData\""
-  })
+  @ApiOperation({ summary: "Create a new Location" })
   async create(@Body() createlocationData: CreateLocationDto): Promise<Location> {
     return await this.locationService.create(createlocationData);
   }
@@ -47,10 +44,7 @@ export class LocationController {
   };
 
   @Patch(":id")
-  @ApiOperation({
-    summary: "Update location by id",
-    description: "This route allows updating a field by id"
-  })
+  @ApiOperation({ summary: "Update location by id" })
   async updateLocation(@Param("id", ParseIntPipe) id: number, @Body() updateLocation: UpdateLocationDto): Promise<UpdatedLocationFields> {
     return await this.locationService.updateLocation(id, updateLocation);
   }

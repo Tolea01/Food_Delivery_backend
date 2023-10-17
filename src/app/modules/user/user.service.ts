@@ -26,7 +26,7 @@ export class UserService {
   }
 
   async create(userData: CreateUserDto): Promise<User> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<User> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<User> => {
       const existUser: User | undefined = await transactionalEntityManager.findOne(User,
         {
           where: { username: userData.username }
@@ -89,7 +89,7 @@ export class UserService {
   }
 
   async updateUser(id: number, updateUser: UpdateUserDto): Promise<Partial<User>> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<User>> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<User>> => {
       const user: User | undefined = await this.getUserById(id);
       const updatedFields: Partial<User> = {};
 
@@ -116,7 +116,7 @@ export class UserService {
   }
 
   async removeUser(id: number): Promise<void> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
       const removeResult: DeleteResult = await transactionalEntityManager.delete(User, id);
     });
   }

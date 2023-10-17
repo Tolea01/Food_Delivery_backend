@@ -15,10 +15,7 @@ export class CountryController {
   }
 
   @Post("create")
-  @ApiOperation({
-    summary: "Create a new Country",
-    description: "The request body should contain an object named \"createCountryData\""
-  })
+  @ApiOperation({ summary: "Create a new Country" })
   async create(@Body() createCountryData: CreateCountryDto): Promise<Country> {
     return await this.countryService.create(createCountryData);
   }
@@ -41,10 +38,7 @@ export class CountryController {
   }
 
   @Patch(":id")
-  @ApiOperation({
-    summary: "Update country by id",
-    description: "This route allows updating a field by id"
-  })
+  @ApiOperation({ summary: "Update country by id" })
   async updateCountry(@Param("id", ParseIntPipe) id: number, @Body() updateCountry: UpdateCountryDto): Promise<UpdatedCountryFields> {
     return await this.countryService.updateCountry(id, updateCountry);
   }

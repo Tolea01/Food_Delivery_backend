@@ -16,7 +16,7 @@ export class CountryService {
   }
 
   async create(createCountryData: CreateCountryDto): Promise<Country> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Country | undefined> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Country | undefined> => {
       const existCountry: Country | undefined = await transactionalEntityManager.findOne(Country,
         {
           where: createCountryData
@@ -67,7 +67,7 @@ export class CountryService {
   }
 
   async updateCountry(id: number, updateCountry: UpdateCountryDto): Promise<UpdatedCountryFields> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedCountryFields> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedCountryFields> => {
       const country: Country = await this.getCountryById(id);
       const updatedFields: Partial<Country> = {};
 

@@ -18,10 +18,7 @@ export class RegionController {
   }
 
   @Post("create")
-  @ApiOperation({
-    summary: "Create a new Region",
-    description: "The request body should contain an object named \"createRegionData\""
-  })
+  @ApiOperation({ summary: "Create a new Region" })
   async create(@Body() createRegionData: CreateRegionDto): Promise<Region> {
     return await this.regionService.create(createRegionData);
   }
@@ -50,10 +47,7 @@ export class RegionController {
   };
 
   @Patch(":id")
-  @ApiOperation({
-    summary: "Update region by id",
-    description: "This route allows updating a field by id"
-  })
+  @ApiOperation({ summary: "Update region by id" })
   async updateRegion(@Param("id", ParseIntPipe) id: number, @Body() updateRegion: UpdateRegionDto): Promise<UpdatedRegionFields> {
     return await this.regionService.updateRegion(id, updateRegion);
   }

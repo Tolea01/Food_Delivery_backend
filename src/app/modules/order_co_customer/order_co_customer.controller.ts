@@ -14,10 +14,7 @@ export class OrderCoCustomerController {
   }
 
   @Post("create")
-  @ApiOperation({
-    summary: "Create a new Customer",
-    description: "The request body should contain an object named \"createCustomerDto\""
-  })
+  @ApiOperation({ summary: "Create a new Customer" })
   async create(@Body() createCustomerDto: CreateCustomerDto): Promise<OrderCoCustomer> {
     return await this.orderCoCustomerService.create(createCustomerDto);
   }
@@ -39,10 +36,7 @@ export class OrderCoCustomerController {
   }
 
   @Patch(":id")
-  @ApiOperation({
-    summary: "Update customer by id",
-    description: "This route allows updating a field by id"
-  })
+  @ApiOperation({ summary: "Update customer by id" })
   async updateCustomer(@Body() updateCustomerDto: UpdateCustomerDto, @Param("id", ParseIntPipe) id: number): Promise<UpdateCustomerFields> {
     return this.orderCoCustomerService.updateCustomer(id, updateCustomerDto);
   }

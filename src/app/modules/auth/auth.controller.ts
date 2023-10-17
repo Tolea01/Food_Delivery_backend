@@ -13,20 +13,14 @@ export class AuthController {
   }
 
   @Post("login")
-  @ApiOperation({
-    summary: "User login",
-    description: "This route allows user authentication"
-  })
+  @ApiOperation({ summary: "User login" })
   async login(@Body() data: LoginDto): Promise<string> {
-    return this.authService.login(data);
+    return await this.authService.login(data);
   }
 
   @Post("register")
-  @ApiOperation({
-    summary: "User registration",
-    description: "This route allows user registration"
-  })
+  @ApiOperation({ summary: "User registration" })
   async registerUser(@Body() data: CreateUserDto): Promise<Partial<User>> {
-    return this.authService.registerUser(data);
+    return await this.authService.registerUser(data);
   }
 }

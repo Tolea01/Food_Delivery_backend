@@ -19,7 +19,7 @@ export class RegionService {
   }
 
   async create(createRegionData: CreateRegionDto): Promise<Region | undefined> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Region> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Region> => {
       const { name_en, name_ro, name_ru, country_id } = createRegionData;
       const existRegion: Region | undefined = await transactionalEntityManager.findOne(Region, {
         where: { name_en, name_ro, name_ru, country_id: { id: country_id } }
@@ -87,7 +87,7 @@ export class RegionService {
   }
 
   async updateRegion(id: number, updateRegionData: UpdateRegionDto): Promise<UpdatedRegionFields> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedRegionFields> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedRegionFields> => {
       const region: Region = await this.getRegionById(id);
       const updatedFields: Partial<Region> = {};
 
@@ -116,7 +116,7 @@ export class RegionService {
   }
 
   async removeRegion(id: number): Promise<void> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
       const removeRegion: DeleteResult = await transactionalEntityManager.delete(Region, id);
     });
   }

@@ -26,10 +26,7 @@ export class UserController {
   }
 
   @Post("register")
-  @ApiOperation({
-    summary: "User registration",
-    description: "This route allows the creation/registration of a user"
-  })
+  @ApiOperation({ summary: "User registration" })
   async create(@Body() createUser: CreateUserDto): Promise<User> {
     return await this.userService.create(createUser);
   }
@@ -70,28 +67,19 @@ export class UserController {
   }
 
   @Get(":id")
-  @ApiOperation({
-    summary: "Get user by id",
-    description: "This route returns a user by id"
-  })
+  @ApiOperation({ summary: "Get user by id" })
   async getOne(@Param("id", ParseIntPipe) id: number): Promise<User | undefined> {
     return await this.userService.getUserById(id);
   }
 
   @Patch(":id")
-  @ApiOperation({
-    summary: "Update user by id",
-    description: "This route allows updating a field by id"
-  })
+  @ApiOperation({ summary: "Update user by id" })
   async update(@Param("id", ParseIntPipe) id: number, @Body() updateUser: UpdateUserDto): Promise<Partial<User>> {
     return await this.userService.updateUser(id, updateUser);
   }
 
   @Delete(":id")
-  @ApiOperation({
-    summary: "Delete user by id",
-    description: "This route deletes a user by id"
-  })
+  @ApiOperation({ summary: "Delete user by id" })
   async remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
     return await this.userService.removeUser(id);
   }

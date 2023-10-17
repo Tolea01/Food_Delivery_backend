@@ -19,7 +19,7 @@ export class LocationService {
   }
 
   async create(createLocationData: CreateLocationDto): Promise<Location | undefined> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Location> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Location> => {
       const { name_en, name_ro, name_ru, region_id } = createLocationData;
       const existLocation: Location | undefined = await transactionalEntityManager.findOne(Location,
         {
@@ -87,7 +87,7 @@ export class LocationService {
   }
 
   async updateLocation(id: number, updateLocationData: UpdateLocationDto): Promise<UpdatedLocationFields> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedLocationFields> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedLocationFields> => {
       const location: Location | undefined = await this.getLocationById(id);
       const updatedFields: Partial<Location> = {};
 
@@ -116,7 +116,7 @@ export class LocationService {
   }
 
   async removeLocation(id: number): Promise<void> {
-    return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
       const deleteLocation: DeleteResult = await transactionalEntityManager.delete(Location, id);
     });
   }
