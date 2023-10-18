@@ -1,7 +1,7 @@
 import { PartialType } from "@nestjs/mapped-types";
 import { CreateUserDto } from "./create-user.dto";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, Length } from "class-validator";
+import { IsNotEmpty, IsString, Length, Matches } from "class-validator";
 import { UserRole } from "../entities/user-role.enum";
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
@@ -17,6 +17,7 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
 
   @IsNotEmpty()
   @IsString()
+  @Matches(/^(Admin|Courier|Customer)$/, { message: "User role is not valid" })
   @ApiProperty({example: 'Admin | Courier | Customer'})
   role?: UserRole;
 }

@@ -91,16 +91,10 @@ export class LocationService {
       const location: Location | undefined = await this.getLocationById(id);
       const updatedFields: Partial<Location> = {};
 
-      if (updateLocationData.name_en) {
-        updatedFields.name_en = updateLocationData.name_en;
-      }
-
-      if (updateLocationData.name_ro) {
-        updatedFields.name_ro = updateLocationData.name_ro;
-      }
-
-      if (updateLocationData.name_ru) {
-        updatedFields.name_ru = updateLocationData.name_ru;
+      for (const updateLocationKey in updateLocationData) {
+        if (updateLocationData[updateLocationKey]) {
+          updatedFields[updateLocationKey] = updateLocationData[updateLocationKey];
+        }
       }
 
       if (updateLocationData.region_id) {

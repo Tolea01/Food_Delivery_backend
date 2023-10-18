@@ -71,16 +71,10 @@ export class CountryService {
       const country: Country = await this.getCountryById(id);
       const updatedFields: Partial<Country> = {};
 
-      if (updateCountry.name_en) {
-        updatedFields.name_en = updateCountry.name_en;
-      }
-
-      if (updateCountry.name_ro) {
-        updatedFields.name_ro = updateCountry.name_ro;
-      }
-
-      if (updateCountry.name_ru) {
-        updatedFields.name_ru = updateCountry.name_ru;
+      for (const updateCountryKey in updateCountry) {
+        if (updateCountry[updateCountryKey]) {
+          updatedFields[updateCountryKey] = updateCountry[updateCountryKey];
+        }
       }
 
       const updateResult: UpdateResult = await transactionalEntityManager.update(Country, id, updatedFields);

@@ -91,16 +91,10 @@ export class RegionService {
       const region: Region = await this.getRegionById(id);
       const updatedFields: Partial<Region> = {};
 
-      if (updateRegionData.name_en) {
-        updatedFields.name_en = updateRegionData.name_en;
-      }
-
-      if (updateRegionData.name_ro) {
-        updatedFields.name_ro = updateRegionData.name_ro;
-      }
-
-      if (updateRegionData.name_ru) {
-        updatedFields.name_ru = updateRegionData.name_ru;
+      for (const updateRegionKey in updateRegionData) {
+        if (updateRegionData[updateRegionKey]) {
+          updatedFields[updateRegionKey] = updateRegionData[updateRegionKey];
+        }
       }
 
       if (updateRegionData.country_id) {

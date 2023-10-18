@@ -7,6 +7,7 @@ import * as argon2 from "argon2";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { paginationConfig } from "src/app/config";
 import appError from "src/app/config/appError";
+import { UserRole } from "./entities/user-role.enum";
 
 @Injectable()
 export class UserService {
@@ -93,16 +94,14 @@ export class UserService {
       const user: User | undefined = await this.getUserById(id);
       const updatedFields: Partial<User> = {};
 
-      if (updateUser.username) {
-        updatedFields.username = updateUser.username;
+      for (const updateUserKey in updateUser) {
+        if (updateUser[updateUserKey]) {
+          updatedFields[updateUserKey] = updateUser[updateUserKey];
+        }
       }
 
       if (updateUser.password) {
         updatedFields.password = await argon2.hash(updateUser.password);
-      }
-
-      if (updateUser.role) {
-        updatedFields.role = updateUser.role;
       }
 
       const updateResult: UpdateResult = await transactionalEntityManager.update(User, id, updatedFields);
