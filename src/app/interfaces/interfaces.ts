@@ -9,8 +9,11 @@ interface UserData {
   role: string
 }
 
+interface ProductCategoryQueryResult extends GeoQueryResult {
+}
 
 export {
   GeoQueryResult,
-  UserData
+  UserData,
+  ProductCategoryQueryResult
 };
