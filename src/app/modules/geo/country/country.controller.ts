@@ -4,8 +4,7 @@ import { CountryService } from "./country.service";
 import { CreateCountryDto } from "./dto/create-country.dto";
 import { Country } from "./entities/country.entity";
 import { UpdateCountryDto } from "./dto/update-country.dto";
-import { UpdateResult } from "typeorm";
-import { GeoQueryResult, UpdatedCountryFields } from "../../../interfaces/interfaces";
+import { GeoQueryResult } from "../../../interfaces/interfaces";
 
 @ApiTags("Country CRUD")
 @ApiBearerAuth()
@@ -39,7 +38,7 @@ export class CountryController {
 
   @Patch(":id")
   @ApiOperation({ summary: "Update country by id" })
-  async updateCountry(@Param("id", ParseIntPipe) id: number, @Body() updateCountry: UpdateCountryDto): Promise<UpdatedCountryFields> {
+  async updateCountry(@Param("id", ParseIntPipe) id: number, @Body() updateCountry: UpdateCountryDto): Promise<Partial<Country>> {
     return await this.countryService.updateCountry(id, updateCountry);
   }
 

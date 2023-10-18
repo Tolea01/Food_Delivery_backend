@@ -5,7 +5,6 @@ import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResu
 import { CreateCustomerDto } from "./dto/create-customer.dto";
 import appError from "../../config/appError";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
-import { UpdateCustomerFields } from "../../interfaces/interfaces";
 
 @Injectable()
 export class OrderCoCustomerService {
@@ -52,8 +51,8 @@ export class OrderCoCustomerService {
     return await this.orderCoCustomerRepository.find();
   }
 
-  async updateCustomer(id: number, updateCustomerDto: UpdateCustomerDto): Promise<UpdateCustomerFields> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdateCustomerFields> => {
+  async updateCustomer(id: number, updateCustomerDto: UpdateCustomerDto): Promise<Partial<OrderCoCustomer>> {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<OrderCoCustomer>> => {
       const customer: OrderCoCustomer | undefined = await this.getCustomerById(id);
       const updateResult: UpdateResult = await transactionalEntityManager.update(OrderCoCustomer, id, { name: updateCustomerDto.name });
 

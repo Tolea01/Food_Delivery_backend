@@ -4,11 +4,8 @@ import { RegionService } from "./region.service";
 import { CreateRegionDto } from "./dto/create-region.dto";
 import { Region } from "./entities/region.entity";
 import { Country } from "../country/entities/country.entity";
-import { GeoQueryResult, UpdatedRegionFields } from "../../../interfaces/interfaces";
-import { UpdateCountryDto } from "../country/dto/update-country.dto";
-import { DeleteResult, UpdateResult } from "typeorm";
+import { GeoQueryResult } from "../../../interfaces/interfaces";
 import { UpdateRegionDto } from "./dto/update-region.dto";
-import { Location } from "../location/entities/location.entity";
 
 @ApiTags("Region CRUD")
 @ApiBearerAuth()
@@ -48,7 +45,7 @@ export class RegionController {
 
   @Patch(":id")
   @ApiOperation({ summary: "Update region by id" })
-  async updateRegion(@Param("id", ParseIntPipe) id: number, @Body() updateRegion: UpdateRegionDto): Promise<UpdatedRegionFields> {
+  async updateRegion(@Param("id", ParseIntPipe) id: number, @Body() updateRegion: UpdateRegionDto): Promise<Partial<Country>> {
     return await this.regionService.updateRegion(id, updateRegion);
   }
 

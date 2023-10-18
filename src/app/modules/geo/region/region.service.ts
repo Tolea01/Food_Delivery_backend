@@ -6,7 +6,7 @@ import { CreateRegionDto } from "./dto/create-region.dto";
 import { CountryService } from "../country/country.service";
 import { Country } from "../country/entities/country.entity";
 import { UpdateRegionDto } from "./dto/update-region.dto";
-import { GeoQueryResult, UpdatedRegionFields } from "../../../interfaces/interfaces";
+import { GeoQueryResult } from "../../../interfaces/interfaces";
 import appError from "../../../config/appError";
 
 @Injectable()
@@ -86,8 +86,8 @@ export class RegionService {
     });
   }
 
-  async updateRegion(id: number, updateRegionData: UpdateRegionDto): Promise<UpdatedRegionFields> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedRegionFields> => {
+  async updateRegion(id: number, updateRegionData: UpdateRegionDto): Promise<Partial<Country>> {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Country>> => {
       const region: Region = await this.getRegionById(id);
       const updatedFields: Partial<Region> = {};
 

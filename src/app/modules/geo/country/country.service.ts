@@ -4,7 +4,7 @@ import { Country } from "./entities/country.entity";
 import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
 import { CreateCountryDto } from "./dto/create-country.dto";
 import { UpdateCountryDto } from "./dto/update-country.dto";
-import { GeoQueryResult, UpdatedCountryFields } from "../../../interfaces/interfaces";
+import { GeoQueryResult } from "../../../interfaces/interfaces";
 import appError from "../../../config/appError";
 
 @Injectable()
@@ -66,8 +66,8 @@ export class CountryService {
     return country;
   }
 
-  async updateCountry(id: number, updateCountry: UpdateCountryDto): Promise<UpdatedCountryFields> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<UpdatedCountryFields> => {
+  async updateCountry(id: number, updateCountry: UpdateCountryDto): Promise<Partial<Country>> {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Country>> => {
       const country: Country = await this.getCountryById(id);
       const updatedFields: Partial<Country> = {};
 

@@ -7,7 +7,6 @@ import * as argon2 from "argon2";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { paginationConfig } from "src/app/config";
 import appError from "src/app/config/appError";
-import { UserRole } from "./entities/user-role.enum";
 
 @Injectable()
 export class UserService {

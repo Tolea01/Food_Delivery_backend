@@ -4,8 +4,7 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger"
 import { CreateLocationDto } from "./dto/create-location.dto";
 import { Location } from "./entities/location.entity";
 import { UpdateLocationDto } from "./dto/update-location.dto";
-import { DeleteResult, UpdateResult } from "typeorm";
-import { GeoQueryResult, UpdatedLocationFields } from "../../../interfaces/interfaces";
+import { GeoQueryResult } from "../../../interfaces/interfaces";
 
 @ApiTags("Location CRUD")
 @ApiBearerAuth()
@@ -45,7 +44,7 @@ export class LocationController {
 
   @Patch(":id")
   @ApiOperation({ summary: "Update location by id" })
-  async updateLocation(@Param("id", ParseIntPipe) id: number, @Body() updateLocation: UpdateLocationDto): Promise<UpdatedLocationFields> {
+  async updateLocation(@Param("id", ParseIntPipe) id: number, @Body() updateLocation: UpdateLocationDto): Promise<Partial<Location>> {
     return await this.locationService.updateLocation(id, updateLocation);
   }
 

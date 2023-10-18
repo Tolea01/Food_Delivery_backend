@@ -4,7 +4,6 @@ import { CreateCustomerDto } from "./dto/create-customer.dto";
 import { OrderCoCustomer } from "./entities/order-co-customer.entity";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
-import { UpdateCustomerFields } from "../../interfaces/interfaces";
 
 @ApiTags("OrderCoCustomer CRUD")
 @ApiBearerAuth()
@@ -37,7 +36,7 @@ export class OrderCoCustomerController {
 
   @Patch(":id")
   @ApiOperation({ summary: "Update customer by id" })
-  async updateCustomer(@Body() updateCustomerDto: UpdateCustomerDto, @Param("id", ParseIntPipe) id: number): Promise<UpdateCustomerFields> {
+  async updateCustomer(@Body() updateCustomerDto: UpdateCustomerDto, @Param("id", ParseIntPipe) id: number): Promise<Partial<OrderCoCustomer>> {
     return this.orderCoCustomerService.updateCustomer(id, updateCustomerDto);
   }
 
