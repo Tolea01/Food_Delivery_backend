@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { createUniqueColumnOptions } from "../../../helpers/column-helpers";
+import { Product } from "../../products/entities/product.entity";
 
 @Entity()
 export class ProductCategory {
@@ -14,4 +15,7 @@ export class ProductCategory {
 
   @Column(createUniqueColumnOptions(100))
   name_ru: string;
+
+  @OneToMany(() => Product, (product: Product) => product.category_id, { onDelete: "CASCADE" })
+  products: Product[];
 }

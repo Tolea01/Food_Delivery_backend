@@ -18,9 +18,7 @@ export class UserService {
 
   private userProps(user: User): User {
     return {
-      id: user.id,
-      username: user.username,
-      role: user.role,
+      ...user,
       password: undefined
     };
   }

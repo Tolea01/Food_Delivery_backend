@@ -5,6 +5,7 @@ import { OrderCoCustomerModule } from "./order-co-customer/order-co-customer.mod
 import { RegionModule } from "./geo/region/region.module";
 import { UserModule } from "./user/user.module";
 import { ProductCategoriesModule } from "./product-categories/product-categories.module";
+import { ProductsModule } from "./products/products.module";
 
 export default [
   AuthModule,
@@ -13,5 +14,6 @@ export default [
   OrderCoCustomerModule,
   RegionModule,
   UserModule,
-  ProductCategoriesModule
+  ProductCategoriesModule,
+  ProductsModule
 ];

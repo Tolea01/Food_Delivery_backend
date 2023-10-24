@@ -9,11 +9,10 @@ interface UserData {
   role: string
 }
 
-interface ProductCategoryQueryResult extends GeoQueryResult {
-}
+interface ProductCategoryQueryResult extends GeoQueryResult { }
 
 export {
   GeoQueryResult,
   UserData,
-  ProductCategoryQueryResult
+  ProductCategoryQueryResult,
 };
