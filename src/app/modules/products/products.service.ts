@@ -62,7 +62,6 @@ export class ProductsService {
   async findAll(
     sortBy?: string,
     name?: string,
-    price?: number,
     maxPrice?: number,
     minPrice?: number,
     orderBy?: "ASC" | "DESC",
@@ -97,16 +96,12 @@ export class ProductsService {
       );
     }
 
-    if (price) {
-      queryBuilder.andWhere("product.price = :price", { price });
-    }
-
     if (maxPrice) {
-      queryBuilder.andWhere("product.price >= :maxPrice", { maxPrice });
+      queryBuilder.andWhere("product.price <= :maxPrice", { maxPrice });
     }
 
     if (minPrice) {
-      queryBuilder.andWhere("product.price <= :minPrice", { minPrice });
+      queryBuilder.andWhere("product.price >= :minPrice", { minPrice });
     }
 
     if (page && pageSize) {

@@ -39,13 +39,11 @@ export class ProductsController {
   @ApiQuery({ name: "sortBy", required: false })
   @ApiQuery({ name: "orderBy", required: false })
   @ApiQuery({ name: "name", required: false })
-  @ApiQuery({ name: "price", required: false })
-  @ApiQuery({ name: "minPrice", required: false })
   @ApiQuery({ name: "maxPrice", required: false })
+  @ApiQuery({ name: "minPrice", required: false })
   async findAll(
     @Query("sortBy") sortBy: string,
     @Query("name") name: string,
-    @Query("price") price: number,
     @Query("maxPrice") maxPrice: number,
     @Query("minPrice") minPrice: number,
     @Query("orderBy", new DefaultValuePipe(paginationConfig.sortOrder)) orderBy: "ASC" | "DESC",
@@ -55,9 +53,8 @@ export class ProductsController {
     return await this.productsService.findAll(
       sortBy,
       name,
-      +price,
-      +minPrice,
-      +maxPrice,
+      maxPrice,
+      minPrice,
       orderBy,
       page,
       pageSize
