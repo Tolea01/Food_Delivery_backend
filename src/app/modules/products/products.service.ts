@@ -59,7 +59,6 @@ export class ProductsService {
     });
   }
 
-
   async findAll(
     sortBy?: string,
     name?: string,
@@ -102,17 +101,17 @@ export class ProductsService {
       queryBuilder.andWhere("product.price = :price", { price });
     }
 
-    if (page && pageSize) {
-      const skip: number = (page - 1) * pageSize;
-      queryBuilder.skip(skip).take(pageSize);
+    if (maxPrice) {
+      queryBuilder.andWhere("product.price >= :maxPrice", { maxPrice });
     }
 
     if (minPrice) {
-      queryBuilder.andWhere("product.price >= :minPrice", { minPrice });
+      queryBuilder.andWhere("product.price <= :minPrice", { minPrice });
     }
 
-    if (maxPrice) {
-      queryBuilder.andWhere("product.price <= :maxPrice", { maxPrice });
+    if (page && pageSize) {
+      const skip: number = (page - 1) * pageSize;
+      queryBuilder.skip(skip).take(pageSize);
     }
 
     queryBuilder.andWhere("(product.deleted_by IS NULL AND product.deleted_at IS NULL)");
