@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { createUniqueColumnOptions } from "src/app/helpers/column-helpers";
-import { Region } from "../../region/entities/region.entity";
+import { Region } from "@region/entities/region.entity";
 
 @Entity()
 export class Country {

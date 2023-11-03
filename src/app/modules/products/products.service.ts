@@ -3,10 +3,10 @@ import { CreateProductDto } from "./dto/create-product.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
 import { EntityManager, IsNull, Repository, SelectQueryBuilder } from "typeorm";
-import appError from "../../config/appError";
-import { User } from "../user/entities/user.entity";
-import { ProductCategoriesService } from "../product-categories/product-categories.service";
-import { ProductCategory } from "../product-categories/entities/product-category.entity";
+import appError from "@config/appError";
+import { User } from "@user/entities/user.entity";
+import { ProductCategoriesService } from "@product-categories/product-categories.service";
+import { ProductCategory } from "@product-categories/entities/product-category.entity";
 import { UpdateProductDto } from "./dto/update-product.dto";
 
 @Injectable()

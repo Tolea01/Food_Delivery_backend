@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { CreateUserDto } from "./dto/create-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity";
-import { Repository, EntityManager, UpdateResult, DeleteResult } from "typeorm";
+import { Repository, EntityManager } from "typeorm";
 import * as argon2 from "argon2";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { paginationConfig } from "src/app/config";

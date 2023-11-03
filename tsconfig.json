@@ -16,6 +16,22 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@config/*": ["src/app/config/*"],
+      "@docs/*": ["src/app/docs/*"],
+      "@helpers/*": ["src/app/helpers/*"],
+      "@middleware/*": ["src/app/middleware/*"],
+      "@modules/*": ["src/app/modules/*"],
+      "@auth/*": ["src/app/modules/auth/*"],
+      "@country/*": ["src/app/modules/geo/country/*"],
+      "@location/*": ["src/app/modules/geo/location/*"],
+      "@order-co-customer/*": ["src/app/modules/order-co-customer/*"],
+      "@region/*": ["src/app/modules/geo/region/*"],
+      "@user/*": ["src/app/modules/user/*"],
+      "@product-categories/*": ["src/app/modules/product-categories/*"],
+      "@products/*": ["src/app/modules/products/*"],
+    }
   }
 }

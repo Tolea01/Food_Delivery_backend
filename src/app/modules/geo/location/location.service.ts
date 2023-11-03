@@ -3,10 +3,10 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Location } from "./entities/location.entity";
 import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateLocationDto } from "./dto/create-location.dto";
-import { RegionService } from "../region/region.service";
-import { Region } from "../region/entities/region.entity";
-import appError from "../../../config/appError";
-import { GeoQueryResult } from "../../../interfaces/interfaces";
+import { RegionService } from "@region/region.service";
+import { Region } from "@region/entities/region.entity";
+import appError from "@config/appError";
+import { GeoQueryResult } from "@app/interfaces/interfaces";
 import { UpdateLocationDto } from "./dto/update-location.dto";
 
 @Injectable()

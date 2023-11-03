@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { OrderCoCustomer } from "./entities/order-co-customer.entity";
 import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCustomerDto } from "./dto/create-customer.dto";
-import appError from "../../config/appError";
+import appError from "@config/appError";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 @Injectable()

@@ -4,8 +4,8 @@ import { UpdateProductCategoryDto } from "./dto/update-product-category.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { ProductCategory } from "./entities/product-category.entity";
-import appError from "../../config/appError";
-import { ProductCategoryQueryResult } from "../../interfaces/interfaces";
+import appError from "@config/appError";
+import { ProductCategoryQueryResult } from "@app/interfaces/interfaces";
 
 @Injectable()
 export class ProductCategoriesService {

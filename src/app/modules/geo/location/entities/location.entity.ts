@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { createUniqueColumnOptions } from "src/app/helpers/column-helpers";
-import { Region } from "../../region/entities/region.entity";
+import { Region } from "@region/entities/region.entity";
 
 @Entity()
 export class Location {
@@ -16,7 +16,7 @@ export class Location {
   @Column(createUniqueColumnOptions(100))
   name_ru: string;
 
-  @ManyToOne(() => Region, (region: Region) => region.id, { onDelete: "CASCADE" })
+  @ManyToOne(() => Region, (region: Region) => region.id)
   @JoinColumn({ name: "region_id" })
   region_id: Region;
 }

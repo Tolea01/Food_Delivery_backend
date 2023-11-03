@@ -12,14 +12,8 @@ interface UserData {
 interface ProductCategoryQueryResult extends GeoQueryResult {
 }
 
-interface ErrorInterceptorResponse {
-  statusCode: number,
-  message: string
-}
-
 export {
   GeoQueryResult,
   UserData,
   ProductCategoryQueryResult,
-  ErrorInterceptorResponse
 };

@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsNumber, IsOptional, IsString, Length } from "class-validator";
 import { Region } from "../entities/region.entity";
 import { i18nValidationMessage } from "nestjs-i18n";
-import { Country } from "../../country/entities/country.entity";
+import { Country } from "@country/entities/country.entity";
 
 export class UpdateRegionDto extends PartialType(Region) {
   @IsNotEmpty({ message: i18nValidationMessage("validation.NOT_EMPTY") })

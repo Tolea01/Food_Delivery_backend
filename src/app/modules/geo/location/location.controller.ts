@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger"
 import { CreateLocationDto } from "./dto/create-location.dto";
 import { Location } from "./entities/location.entity";
 import { UpdateLocationDto } from "./dto/update-location.dto";
-import { GeoQueryResult } from "../../../interfaces/interfaces";
+import { GeoQueryResult } from "@app/interfaces/interfaces";
 
 @ApiTags("Location CRUD")
 @ApiBearerAuth()

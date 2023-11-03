@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { UserService } from "../user/user.service";
+import { UserService } from "@user/user.service";
 import * as argon2 from "argon2";
 import { JwtService } from "@nestjs/jwt";
 import { LoginDto } from "./dto/login.dto";
-import { CreateUserDto } from "../user/dto/create-user.dto";
-import { User } from "../user/entities/user.entity";
+import { CreateUserDto } from "@user/dto/create-user.dto";
+import { User } from "@user/entities/user.entity";
 import appError from "src/app/config/appError";
-import { UserData } from "../../interfaces/interfaces";
+import { UserData } from "@app/interfaces/interfaces";
 
 @Injectable()
 export class AuthService {

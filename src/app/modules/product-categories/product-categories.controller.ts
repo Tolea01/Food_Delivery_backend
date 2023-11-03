@@ -4,7 +4,7 @@ import { CreateProductCategoryDto } from "./dto/create-product-category.dto";
 import { UpdateProductCategoryDto } from "./dto/update-product-category.dto";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { ProductCategory } from "./entities/product-category.entity";
-import { ProductCategoryQueryResult } from "../../interfaces/interfaces";
+import { ProductCategoryQueryResult } from "@app/interfaces/interfaces";
 
 @ApiTags("Product Category CRUD")
 @ApiBearerAuth()

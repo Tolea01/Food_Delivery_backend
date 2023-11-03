@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { createUniqueColumnOptions } from "../../../helpers/column-helpers";
-import { ProductCategory } from "../../product-categories/entities/product-category.entity";
-import { User } from "../../user/entities/user.entity";
+import { createUniqueColumnOptions } from "@helpers/column-helpers";
+import { ProductCategory } from "@product-categories/entities/product-category.entity";
+import { User } from "@user/entities/user.entity";
 
 @Entity()
 export class Product {
@@ -38,7 +38,7 @@ export class Product {
   })
   price: number;
 
-  @ManyToOne(() => ProductCategory, (productCategory: ProductCategory) => productCategory.id, { onDelete: "CASCADE" })
+  @ManyToOne(() => ProductCategory, (productCategory: ProductCategory) => productCategory.id)
   @JoinColumn({ name: "category_id" })
   category_id: ProductCategory;
 
@@ -49,7 +49,7 @@ export class Product {
   })
   created_at: Date;
 
-  @ManyToOne(() => User, (user: User) => user.id, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, (user: User) => user.id)
   @JoinColumn({ name: "created_by" })
   created_by: User;
 
@@ -61,14 +61,14 @@ export class Product {
   })
   updated_at: Date;
 
-  @ManyToOne(() => User, (user: User) => user.id, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, (user: User) => user.id)
   @JoinColumn({ name: "updated_by" })
   updated_by: User;
 
   @Column({ type: "timestamp", default: null })
   deleted_at: Date;
 
-  @ManyToOne(() => User, (user: User) => user.id, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, (user: User) => user.id)
   @JoinColumn({ name: "deleted_by" })
   deleted_by: User;
 }

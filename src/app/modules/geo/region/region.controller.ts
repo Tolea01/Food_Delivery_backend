@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger"
 import { RegionService } from "./region.service";
 import { CreateRegionDto } from "./dto/create-region.dto";
 import { Region } from "./entities/region.entity";
-import { GeoQueryResult } from "../../../interfaces/interfaces";
+import { GeoQueryResult } from "@app/interfaces/interfaces";
 import { UpdateRegionDto } from "./dto/update-region.dto";
 
 @ApiTags("Region CRUD")

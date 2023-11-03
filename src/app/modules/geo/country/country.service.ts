@@ -4,8 +4,8 @@ import { Country } from "./entities/country.entity";
 import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCountryDto } from "./dto/create-country.dto";
 import { UpdateCountryDto } from "./dto/update-country.dto";
-import { GeoQueryResult } from "../../../interfaces/interfaces";
-import appError from "../../../config/appError";
+import { GeoQueryResult } from "@app/interfaces/interfaces";
+import appError from "@config/appError";
 
 @Injectable()
 export class CountryService {

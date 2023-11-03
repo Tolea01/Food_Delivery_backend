@@ -1,8 +1,8 @@
 import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { databaseConfig } from "./config/database";
-import { AuthMiddleware } from "./middleware/auth.middleware";
+import { databaseConfig } from "@config/database";
+import { AuthMiddleware } from "@middleware/auth.middleware";
 import { publicPaths } from "./config";
 import AllModules from "./modules";
 import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from "nestjs-i18n";
