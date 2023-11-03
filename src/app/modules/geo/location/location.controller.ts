@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req } from "@nestjs/common";
 import { LocationService } from "./location.service";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CreateLocationDto } from "./dto/create-location.dto";
@@ -26,8 +26,11 @@ export class LocationController {
   })
   @ApiQuery({ name: "name", required: false })
   @ApiQuery({ name: "sortBy", required: false })
-  async getAllLocations(@Query("name") name?: string, @Query("sortBy") sortBy?: string): Promise<GeoQueryResult[]> {
-    return await this.locationService.getAllLocations(name, sortBy);
+  async getAllLocations(
+    @Req() request: Request,
+    @Query("name") name: string, @Query("sortBy") sortBy: string, @Query("sortOrder") sortOrder?: "ASC" | "DESC"
+  ): Promise<GeoQueryResult[]> {
+    return await this.locationService.getAllLocations(request.headers["language"], name, sortBy, sortOrder);
   }
 
   @Get(":id")

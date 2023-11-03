@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateProductCategoryDto } from "./dto/create-product-category.dto";
 import { UpdateProductCategoryDto } from "./dto/update-product-category.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
+import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { ProductCategory } from "./entities/product-category.entity";
 import appError from "../../config/appError";
 import { ProductCategoryQueryResult } from "../../interfaces/interfaces";
@@ -30,21 +30,14 @@ export class ProductCategoriesService {
     });
   }
 
-  async getAllProductCategories(name?: string, sortBy?: string): Promise<ProductCategoryQueryResult[]> {
-    let queryBuilder: SelectQueryBuilder<ProductCategory> = await this.productCategoryRepository.createQueryBuilder("product_category");
+  async getAllProductCategories(language: string, name?: string, sortBy?: string, sortOrder?: "ASC" | "DESC"): Promise<ProductCategoryQueryResult[]> {
+    if (name || sortBy || sortOrder) {
+      const queryBuilder: SelectQueryBuilder<ProductCategory> = await this.productCategoryRepository.createQueryBuilder("product_category");
 
-    if (name) {
-      queryBuilder = queryBuilder.where(
-        "product_category.name_en = :name OR product_category.name_ro = :name OR product_category.name_ru = :name",
-        { name }
-      );
-
-      return await queryBuilder.getMany();
-    }
-
-    if (sortBy) {
-      queryBuilder = queryBuilder.orderBy(`product_category.${sortBy}`, "ASC");
-      queryBuilder = queryBuilder.select([`product_category.id`, `product_category.${sortBy}`]);
+      queryBuilder
+        .where(name ? `product_category.name_${language} = :name` : "1=1", { name })
+        .orderBy(sortBy ? `product_category.${sortBy}` : "1=1", sortOrder || "ASC")
+        .select(sortBy ? [`product_category.id`, `product_category.${sortBy}`] : null);
 
       const productCategories: ProductCategory[] = await queryBuilder.getMany();
 
@@ -52,9 +45,9 @@ export class ProductCategoriesService {
         id: productCategory.id,
         [sortBy]: productCategory[sortBy]
       }));
+    } else {
+      return await this.productCategoryRepository.find();
     }
-
-    return await this.productCategoryRepository.find();
   }
 
 
@@ -68,24 +61,16 @@ export class ProductCategoriesService {
 
   async update(id: number, updateProductCategoryDto: UpdateProductCategoryDto): Promise<Partial<ProductCategory>> {
     return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<ProductCategory>> => {
-      const productCategory: ProductCategory = await this.getProductCategoryById(id);
-      const updatedFields: Partial<ProductCategory> = {};
+      await this.getProductCategoryById(id);
+      await transactionalEntityManager.update(ProductCategory, id, updateProductCategoryDto);
 
-      for (const updateProductCategoryKey in updateProductCategoryDto) {
-        if (updateProductCategoryDto[updateProductCategoryKey]) {
-          updatedFields[updateProductCategoryKey] = updateProductCategoryDto[updateProductCategoryKey];
-        }
-      }
-
-      const updateProductCategory: UpdateResult = await transactionalEntityManager.update(ProductCategory, id, updatedFields);
-
-      return updatedFields;
+      return updateProductCategoryDto;
     });
   }
 
   async remove(id: number): Promise<void> {
     return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      const removeProductCategory: DeleteResult = await transactionalEntityManager.delete(ProductCategory, id);
+      await transactionalEntityManager.delete(ProductCategory, id);
     });
   }
 }

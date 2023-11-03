@@ -1,14 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Location } from "./entities/location.entity";
-import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
+import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateLocationDto } from "./dto/create-location.dto";
-import { UpdateLocationDto } from "./dto/update-location.dto";
 import { RegionService } from "../region/region.service";
 import { Region } from "../region/entities/region.entity";
 import appError from "../../../config/appError";
 import { GeoQueryResult } from "../../../interfaces/interfaces";
-import { Country } from "../country/entities/country.entity";
+import { UpdateLocationDto } from "./dto/update-location.dto";
 
 @Injectable()
 export class LocationService {
@@ -43,21 +42,14 @@ export class LocationService {
     });
   }
 
-  async getAllLocations(name?: string, sortBy?: string): Promise<GeoQueryResult[]> {
-    let queryBuilder: SelectQueryBuilder<Location> = await this.locationRepository.createQueryBuilder("location");
+  async getAllLocations(language: string, name?: string, sortBy?: string, sortOrder?: "ASC" | "DESC"): Promise<GeoQueryResult[]> {
+    if (name || sortBy || sortOrder) {
+      const queryBuilder: SelectQueryBuilder<Location> = await this.locationRepository.createQueryBuilder("location");
 
-    if (name) {
-      queryBuilder = queryBuilder.where(
-        "location.name_en = :name OR location.name_ro = :name OR location.name_ru = :name",
-        { name }
-      );
-
-      return await queryBuilder.getMany();
-    }
-
-    if (sortBy) {
-      queryBuilder = queryBuilder.orderBy(`location.${sortBy}`, "ASC");
-      queryBuilder = queryBuilder.select([`location.id`, `location.${sortBy}`]);
+      queryBuilder
+        .where(name ? `location.name_${language} = :name` : "1=1", { name })
+        .orderBy(sortBy ? `location.${sortBy}` : "1=1", sortOrder || "ASC")
+        .select(sortBy ? [`location.id`, `location.${sortBy}`] : null);
 
       const locations: Location[] = await queryBuilder.getMany();
 
@@ -65,8 +57,9 @@ export class LocationService {
         id: location.id,
         [sortBy]: location[sortBy]
       }));
+    } else {
+      return await this.locationRepository.find();
     }
-    return await this.locationRepository.find();
   }
 
   async getLocationById(id: number): Promise<Location | undefined> {
@@ -78,7 +71,7 @@ export class LocationService {
   }
 
   async getLocationsByRegion(regionId: number): Promise<Location[]> {
-    const region: Region | undefined = await this.regionService.getRegionById(regionId);
+    await this.regionService.getRegionById(regionId);
 
     return await this.locationRepository.find({
       where: {
@@ -87,33 +80,19 @@ export class LocationService {
     });
   }
 
-  async updateLocation(id: number, updateLocationData: UpdateLocationDto): Promise<Partial<Country>> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Country>> => {
-      const location: Location | undefined = await this.getLocationById(id);
-      const updatedFields: Partial<Location> = {};
+  async updateLocation(id: number, updateLocationData: UpdateLocationDto): Promise<Partial<Location>> {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Location>> => {
+      await this.getLocationById(id);
 
-      for (const updateLocationKey in updateLocationData) {
-        if (updateLocationData[updateLocationKey]) {
-          updatedFields[updateLocationKey] = updateLocationData[updateLocationKey];
-        }
-      }
+      await transactionalEntityManager.update(Location, id, updateLocationData);
 
-      if (updateLocationData.region_id) {
-        const region: Region = await this.regionService.getRegionById(updateLocationData.region_id);
-        updatedFields.region_id = region;
-      }
-
-      const updateResult: UpdateResult = await transactionalEntityManager.update(Location, id, updatedFields);
-
-      return updatedFields;
-
+      return updateLocationData;
     });
   }
 
   async removeLocation(id: number): Promise<void> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      const deleteLocation: DeleteResult = await transactionalEntityManager.delete(Location, id);
+      await transactionalEntityManager.delete(Location, id);
     });
   }
-
 }

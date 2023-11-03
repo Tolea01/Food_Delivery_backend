@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Country } from "./entities/country.entity";
-import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
+import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCountryDto } from "./dto/create-country.dto";
 import { UpdateCountryDto } from "./dto/update-country.dto";
 import { GeoQueryResult } from "../../../interfaces/interfaces";
@@ -31,21 +31,14 @@ export class CountryService {
     });
   }
 
-  async getAllCountries(sortBy?: string, name?: string): Promise<GeoQueryResult[]> {
-    let queryBuilder: SelectQueryBuilder<Country> = await this.countryRepository.createQueryBuilder("country");
+  async getAllCountries(language: string, sortBy?: string, name?: string, sortOrder?: "ASC" | "DESC"): Promise<GeoQueryResult[]> {
+    if (name || sortBy || sortOrder) {
+      const queryBuilder: SelectQueryBuilder<Country> = await this.countryRepository.createQueryBuilder("country");
 
-    if (name) {
-      queryBuilder = queryBuilder.where(
-        "country.name_en = :name OR country.name_ro = :name OR country.name_ru = :name",
-        { name }
-      );
-
-      return await queryBuilder.getMany();
-    }
-
-    if (sortBy) {
-      queryBuilder = queryBuilder.orderBy(`country.${sortBy}`, "ASC");
-      queryBuilder = queryBuilder.select([`country.id`, `country.${sortBy}`]);
+      queryBuilder
+        .where(name ? `country.name_${language} = :name` : "1=1", { name })
+        .orderBy(sortBy ? `country.${sortBy}` : "1=1", sortOrder || "ASC")
+        .select(sortBy ? [`country.id`, `country.${sortBy}`] : null);
 
       const countries: Country[] = await queryBuilder.getMany();
 
@@ -53,9 +46,9 @@ export class CountryService {
         id: country.id,
         [sortBy]: country[sortBy]
       }));
+    } else {
+      return await this.countryRepository.find();
     }
-
-    return await this.countryRepository.find();
   }
 
   async getCountryById(id: number): Promise<Country | undefined> {
@@ -68,24 +61,16 @@ export class CountryService {
 
   async updateCountry(id: number, updateCountry: UpdateCountryDto): Promise<Partial<Country>> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Country>> => {
-      const country: Country = await this.getCountryById(id);
-      const updatedFields: Partial<Country> = {};
+      await this.getCountryById(id);
+      await transactionalEntityManager.update(Country, id, updateCountry);
 
-      for (const updateCountryKey in updateCountry) {
-        if (updateCountry[updateCountryKey]) {
-          updatedFields[updateCountryKey] = updateCountry[updateCountryKey];
-        }
-      }
-
-      const updateResult: UpdateResult = await transactionalEntityManager.update(Country, id, updatedFields);
-
-      return updatedFields;
+      return updateCountry;
     });
   }
 
   async deleteCountry(id: number): Promise<void> {
     return this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      const deleteCountry: DeleteResult = await transactionalEntityManager.delete(Country, id);
+      await transactionalEntityManager.delete(Country, id);
     });
   }
 

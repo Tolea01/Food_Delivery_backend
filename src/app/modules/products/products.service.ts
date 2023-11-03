@@ -2,11 +2,12 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { CreateProductDto } from "./dto/create-product.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
-import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
+import { EntityManager, IsNull, Repository, SelectQueryBuilder } from "typeorm";
 import appError from "../../config/appError";
 import { User } from "../user/entities/user.entity";
 import { ProductCategoriesService } from "../product-categories/product-categories.service";
 import { ProductCategory } from "../product-categories/entities/product-category.entity";
+import { UpdateProductDto } from "./dto/update-product.dto";
 
 @Injectable()
 export class ProductsService {
@@ -60,6 +61,7 @@ export class ProductsService {
   }
 
   async findAll(
+    language: any,
     sortBy?: string,
     name?: string,
     maxPrice?: number,
@@ -68,53 +70,37 @@ export class ProductsService {
     page?: number,
     pageSize?: number
   ): Promise<Product[]> {
-    const queryBuilder: SelectQueryBuilder<Product> = this.productRepository.createQueryBuilder("product");
-
-    if (sortBy) {
-      switch (sortBy) {
-        case "name":
-          queryBuilder.addOrderBy("product.name_en", orderBy || "ASC");
-          queryBuilder.addOrderBy("product.name_ro", orderBy || "ASC");
-          queryBuilder.addOrderBy("product.name_ru", orderBy || "ASC");
-          break;
-        case "price":
-          queryBuilder.orderBy("product.price", orderBy || "ASC");
-          break;
-        case "created_at":
-          queryBuilder.orderBy("product.created_at", orderBy || "DESC");
-          break;
-        default:
-          queryBuilder.orderBy("product.created_at", "DESC");
-          break;
-      }
-    }
-
-    if (name) {
-      queryBuilder.where(
-        "product.name_en = :name OR product.name_ro = :name OR product.name_ru = :name",
-        { name }
-      );
-    }
-
-    if (maxPrice) {
-      queryBuilder.andWhere("product.price <= :maxPrice", { maxPrice });
-    }
-
-    if (minPrice) {
-      queryBuilder.andWhere("product.price >= :minPrice", { minPrice });
-    }
+    const queryBuilder: SelectQueryBuilder<Product> = await this.productRepository.createQueryBuilder("product");
 
     if (page && pageSize) {
-      const skip: number = (page - 1) * pageSize;
-      queryBuilder.skip(skip).take(pageSize);
+      queryBuilder
+        .skip((page - 1) * pageSize)
+        .take(pageSize);
     }
 
-    queryBuilder.andWhere("(product.deleted_by IS NULL AND product.deleted_at IS NULL)");
+    queryBuilder
+      .orderBy(sortBy === "name" ? `product.name_${language}` : "1=1", orderBy || "ASC")
+      .addOrderBy(sortBy === "price" ? "product.price" : "1=1", orderBy || "ASC")
+      .addOrderBy(sortBy === "created_at" ? "product.created_at" : "1=1", orderBy || "DESC")
+      .where(name ? `product.name_${language} = :name` : "1=1", { name })
+      .andWhere(maxPrice ? "product.price <= :maxPrice" : "1=1", { maxPrice })
+      .andWhere(minPrice ? "product.price >= :maxPrice" : "1=1", { minPrice })
+      .andWhere("(product.deleted_by IS NULL AND product.deleted_at IS NULL)");
 
     return await queryBuilder.getMany();
   }
 
   async findOne(id: number): Promise<Product | undefined> {
+    const product: Product | undefined = await this.productRepository.findOne({
+      where: { id, deleted_at: IsNull() }
+    });
+
+    if (!product) throw new NotFoundException(appError.PRODUCT_NOT_FOUND);
+
+    return product;
+  }
+
+  async getOne(id: number): Promise<Product | undefined> {
     const product: Product | undefined = await this.productRepository.findOne({ where: { id } });
 
     if (!product) throw new NotFoundException(appError.PRODUCT_NOT_FOUND);
@@ -127,40 +113,50 @@ export class ProductsService {
 
     return await this.productRepository.find({
       where: {
-        category_id: { id: categoryId }
+        category_id: { id: categoryId },
+        deleted_at: IsNull()
       }
     });
   }
 
-  async update(id: number, updateProductDto: Partial<Product>, user: any): Promise<Partial<Product>> {
+  async update(id: number, updateProductData: UpdateProductDto, user: any): Promise<Partial<Product>> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Product>> => {
-      try {
-        const product: Product | undefined = await this.findOne(id);
+      await this.findOne(id);
 
-        updateProductDto.updated_by = user.id;
+      updateProductData.updated_by = user.id;
+      updateProductData.updated_at = new Date();
 
-        await transactionalEntityManager.update(Product, id, updateProductDto);
+      await transactionalEntityManager.update(Product, id, updateProductData);
 
-        return updateProductDto;
-      } catch (error) {
-        return error
-      }
+      return updateProductData;
     });
   }
 
-  async remove(id: number, user: any): Promise<void> {
+  async deletedBy(id: number, user: any): Promise<void> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      try {
-        const product: Product | undefined = await this.findOne(id);
+      const product: Product | undefined = await this.getOne(id);
 
-        product.deleted_by = user.id;
-        product.deleted_at = new Date();
+      product.deleted_by = user.id;
+      product.deleted_at = new Date();
 
-        await transactionalEntityManager.save(Product, product);
+      await transactionalEntityManager.save(Product, product);
+    });
+  }
 
-      } catch (error) {
-        return error;
-      }
+  async removeDeleteValues(id: number): Promise<void> {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+      const product: Product | undefined = await this.getOne(id);
+
+      product.deleted_by = null;
+      product.deleted_at = null;
+
+      await transactionalEntityManager.save(Product, product);
+    });
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+      await transactionalEntityManager.delete(Product, id);
     });
   }
 }

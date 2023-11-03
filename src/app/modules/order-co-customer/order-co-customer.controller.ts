@@ -30,7 +30,7 @@ export class OrderCoCustomerController {
     description: "If parameters are not specified, all customers will be returned"
   })
   @ApiQuery({ name: "name", required: false })
-  async getAllCustomers(@Query("name") name?: string): Promise<OrderCoCustomer[]> {
+  async getAllCustomers(@Query("name") name: string): Promise<OrderCoCustomer[]> {
     return await this.orderCoCustomerService.getAllCustomers(name);
   }
 

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { OrderCoCustomer } from "./entities/order-co-customer.entity";
-import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
+import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateCustomerDto } from "./dto/create-customer.dto";
 import appError from "../../config/appError";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
@@ -39,30 +39,25 @@ export class OrderCoCustomerService {
   }
 
   async getAllCustomers(name?: string): Promise<OrderCoCustomer[]> {
-    let queryBuilder: SelectQueryBuilder<OrderCoCustomer> = await this.orderCoCustomerRepository.createQueryBuilder("orderCoCustomer");
+    const queryBuilder: SelectQueryBuilder<OrderCoCustomer> = await this.orderCoCustomerRepository.createQueryBuilder("orderCoCustomer");
 
-    if (name) {
-      queryBuilder = queryBuilder.where("orderCoCustomer.name = :name", { name });
-      return await queryBuilder.getMany();
-    } else {
-      return await this.orderCoCustomerRepository.find();
-    }
+    queryBuilder.where(name ? "orderCoCustomer.name = :name" : "1=1", { name });
 
-    return await this.orderCoCustomerRepository.find();
+    return queryBuilder.getMany();
   }
 
   async updateCustomer(id: number, updateCustomerDto: UpdateCustomerDto): Promise<Partial<OrderCoCustomer>> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<OrderCoCustomer>> => {
-      const customer: OrderCoCustomer | undefined = await this.getCustomerById(id);
-      const updateResult: UpdateResult = await transactionalEntityManager.update(OrderCoCustomer, id, { name: updateCustomerDto.name });
+      await this.getCustomerById(id);
+      await transactionalEntityManager.update(OrderCoCustomer, id, updateCustomerDto);
 
-      return { name: updateCustomerDto.name };
+      return updateCustomerDto;
     });
   }
 
   async removeCustomer(id: number): Promise<void> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      const removeCustomer: DeleteResult = await transactionalEntityManager.delete(OrderCoCustomer, id);
+      await transactionalEntityManager.delete(OrderCoCustomer, id);
     });
   }
 }

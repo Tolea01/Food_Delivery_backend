@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Region } from "./entities/region.entity";
-import { DeleteResult, EntityManager, Repository, SelectQueryBuilder, UpdateResult } from "typeorm";
+import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { CreateRegionDto } from "./dto/create-region.dto";
 import { CountryService } from "../country/country.service";
 import { Country } from "../country/entities/country.entity";
@@ -41,21 +41,14 @@ export class RegionService {
     });
   }
 
-  async getAllRegions(sortBy?: string, name?: string): Promise<GeoQueryResult[]> {
-    let queryBuilder: SelectQueryBuilder<Region> = await this.regionRepository.createQueryBuilder("region");
+  async getAllRegions(language: string, sortBy?: string, name?: string, sortOrder?: "ASC" | "DESC"): Promise<GeoQueryResult[]> {
+    if (name || sortBy || sortOrder) {
+      const queryBuilder: SelectQueryBuilder<Region> = await this.regionRepository.createQueryBuilder("region");
 
-    if (name) {
-      queryBuilder = queryBuilder.where(
-        "region.name_en = :name OR region.name_ro = :name OR region.name_ru = :name",
-        { name }
-      );
-
-      return await queryBuilder.getMany();
-    }
-
-    if (sortBy) {
-      queryBuilder = queryBuilder.orderBy(`region.${sortBy}`, "ASC");
-      queryBuilder = queryBuilder.select([`region.id`, `region.${sortBy}`]);
+      queryBuilder
+        .where(name ? `region.name_${language} = :name` : "1=1", { name })
+        .orderBy(sortBy ? `region.${sortBy}` : "1=1", sortOrder || "ASC")
+        .select(sortBy ? [`region.id`, `region.${sortBy}`] : null);
 
       const regions: Region[] = await queryBuilder.getMany();
 
@@ -63,9 +56,9 @@ export class RegionService {
         id: region.id,
         [sortBy]: region[sortBy]
       }));
+    } else {
+      return await this.regionRepository.find();
     }
-
-    return await this.regionRepository.find();
   }
 
   async getRegionById(id: number): Promise<Region | undefined> {
@@ -77,7 +70,7 @@ export class RegionService {
   }
 
   async getRegionsByCountry(countryId: number): Promise<Region[] | undefined> {
-    const country: Country = await this.countryService.getCountryById(countryId);
+    await this.countryService.getCountryById(countryId);
 
     return await this.regionRepository.find({
       where: {
@@ -86,32 +79,19 @@ export class RegionService {
     });
   }
 
-  async updateRegion(id: number, updateRegionData: UpdateRegionDto): Promise<Partial<Country>> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Country>> => {
-      const region: Region = await this.getRegionById(id);
-      const updatedFields: Partial<Region> = {};
+  async updateRegion(id: number, updateRegionData: UpdateRegionDto): Promise<Partial<Region>> {
+    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Region>> => {
+      await this.getRegionById(id);
 
-      for (const updateRegionKey in updateRegionData) {
-        if (updateRegionData[updateRegionKey]) {
-          updatedFields[updateRegionKey] = updateRegionData[updateRegionKey];
-        }
-      }
+      await transactionalEntityManager.update(Region, id, updateRegionData);
 
-      if (updateRegionData.country_id) {
-        const country: Country = await this.countryService.getCountryById(updateRegionData.country_id);
-        updatedFields.country_id = country;
-      }
-
-      const updateRegion: UpdateResult = await transactionalEntityManager.update(Region, id, updatedFields);
-
-      return updatedFields;
-
+      return updateRegionData;
     });
   }
 
   async removeRegion(id: number): Promise<void> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      const removeRegion: DeleteResult = await transactionalEntityManager.delete(Region, id);
+      await transactionalEntityManager.delete(Region, id);
     });
   }
 }

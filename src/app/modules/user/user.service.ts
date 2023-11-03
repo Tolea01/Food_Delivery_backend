@@ -33,9 +33,8 @@ export class UserService {
       if (existUser) throw new BadRequestException(appError.USER_EXIST);
 
       const user: User = await transactionalEntityManager.save(User, {
-        username: userData.username,
-        password: await argon2.hash(userData.password),
-        role: userData.role
+        ...userData,
+        password: await argon2.hash(userData.password)
       });
 
       return this.userProps(user);
@@ -88,32 +87,24 @@ export class UserService {
 
   async updateUser(id: number, updateUser: UpdateUserDto): Promise<Partial<User>> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<User>> => {
-      const user: User | undefined = await this.getUserById(id);
-      const updatedFields: Partial<User> = {};
-
-      for (const updateUserKey in updateUser) {
-        if (updateUser[updateUserKey]) {
-          updatedFields[updateUserKey] = updateUser[updateUserKey];
-        }
-      }
+      await this.getUserById(id);
 
       if (updateUser.password) {
-        updatedFields.password = await argon2.hash(updateUser.password);
+        updateUser.password = await argon2.hash(updateUser.password);
       }
 
-      const updateResult: UpdateResult = await transactionalEntityManager.update(User, id, updatedFields);
+      await transactionalEntityManager.update(User, id, updateUser);
 
       return {
-        username: updatedFields.username,
-        password: updatedFields.password ? "Password updated successfully" : undefined,
-        role: updatedFields.role
+        ...updateUser,
+        password: updateUser.password ? "Password updated successfully" : undefined
       };
     });
   }
 
   async removeUser(id: number): Promise<void> {
     return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      const removeResult: DeleteResult = await transactionalEntityManager.delete(User, id);
+      await transactionalEntityManager.delete(User, id);
     });
   }
 }

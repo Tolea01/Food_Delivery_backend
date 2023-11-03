@@ -19,7 +19,7 @@ import { i18nConfig } from "./config";
       useFactory: () => i18nConfig(),
       resolvers: [
         new QueryResolver(["lang"]),
-        new HeaderResolver(["x-custom-lang"]),
+        new HeaderResolver(["language"]),
         AcceptLanguageResolver
       ]
     })

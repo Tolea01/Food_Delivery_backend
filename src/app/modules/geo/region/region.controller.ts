@@ -1,9 +1,8 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { RegionService } from "./region.service";
 import { CreateRegionDto } from "./dto/create-region.dto";
 import { Region } from "./entities/region.entity";
-import { Country } from "../country/entities/country.entity";
 import { GeoQueryResult } from "../../../interfaces/interfaces";
 import { UpdateRegionDto } from "./dto/update-region.dto";
 
@@ -27,8 +26,11 @@ export class RegionController {
   })
   @ApiQuery({ name: "name", required: false })
   @ApiQuery({ name: "sortBy", required: false })
-  async getAllRegions(@Query("sortBy") sortBy?: string, @Query("name") name?: string): Promise<GeoQueryResult[]> {
-    return await this.regionService.getAllRegions(sortBy, name);
+  async getAllRegions(
+    @Req() request: Request,
+    @Query("sortBy") sortBy: string, @Query("name") name: string, @Query("sortOrder") sortOrder: "ASC" | "DESC"
+  ): Promise<GeoQueryResult[]> {
+    return await this.regionService.getAllRegions(request.headers["language"], sortBy, name, sortOrder);
   }
 
   @Get(":id")
@@ -45,7 +47,7 @@ export class RegionController {
 
   @Patch(":id")
   @ApiOperation({ summary: "Update region by id" })
-  async updateRegion(@Param("id", ParseIntPipe) id: number, @Body() updateRegion: UpdateRegionDto): Promise<Partial<Country>> {
+  async updateRegion(@Param("id", ParseIntPipe) id: number, @Body() updateRegion: UpdateRegionDto): Promise<Partial<Region>> {
     return await this.regionService.updateRegion(id, updateRegion);
   }
 

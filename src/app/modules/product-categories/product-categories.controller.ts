@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, Req } from "@nestjs/common";
 import { ProductCategoriesService } from "./product-categories.service";
 import { CreateProductCategoryDto } from "./dto/create-product-category.dto";
 import { UpdateProductCategoryDto } from "./dto/update-product-category.dto";
@@ -26,8 +26,11 @@ export class ProductCategoriesController {
   })
   @ApiQuery({ name: "name", required: false })
   @ApiQuery({ name: "sortBy", required: false })
-  async findAll(@Query("name") name?: string, @Query("sortBy") sortBy?: string): Promise<ProductCategoryQueryResult[]> {
-    return await this.productCategoriesService.getAllProductCategories(name, sortBy);
+  async findAll(
+    @Req() request: Request,
+    @Query("name") name: string, @Query("sortBy") sortBy: string, @Query("sortOrder") sortOrder: "ASC" | "DESC"
+  ): Promise<ProductCategoryQueryResult[]> {
+    return await this.productCategoriesService.getAllProductCategories(request.headers["language"], name, sortBy, sortOrder);
   }
 
   @Get(":id")
