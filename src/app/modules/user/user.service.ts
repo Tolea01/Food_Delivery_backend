@@ -24,21 +24,25 @@ export class UserService {
   }
 
   async create(userData: CreateUserDto): Promise<User> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<User> => {
-      const existUser: User | undefined = await transactionalEntityManager.findOne(User,
-        {
-          where: { username: userData.username }
+    try {
+      return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<User> => {
+        const existUser: User | undefined = await transactionalEntityManager.findOne(User,
+          {
+            where: { username: userData.username }
+          });
+
+        if (existUser) throw new BadRequestException(appError.USER_EXIST);
+
+        const user: User = await transactionalEntityManager.save(User, {
+          ...userData,
+          password: await argon2.hash(userData.password)
         });
 
-      if (existUser) throw new BadRequestException(appError.USER_EXIST);
-
-      const user: User = await transactionalEntityManager.save(User, {
-        ...userData,
-        password: await argon2.hash(userData.password)
+        return this.userProps(user);
       });
-
-      return this.userProps(user);
-    });
+    } catch (error) {
+      return error;
+    }
   }
 
   async getAllUsers(pagination: {
@@ -47,64 +51,83 @@ export class UserService {
     sortColumn: string,
     sortOrder: string
   }): Promise<Partial<User[]>> {
-    const { itemsPerPage, page, sortColumn, sortOrder } = {
-      ...paginationConfig,
-      ...pagination
-    };
+    try {
+      const { itemsPerPage, page, sortColumn, sortOrder } = {
+        ...paginationConfig,
+        ...pagination
+      };
 
-    const take: number = itemsPerPage;
-    const skip: number = (page - 1) * itemsPerPage;
+      const take: number = itemsPerPage;
+      const skip: number = (page - 1) * itemsPerPage;
 
-    const items: User[] = await this.userRepository.find({
-      take,
-      skip,
-      order: {
-        [sortColumn]: sortOrder
-      }
-    });
+      const items: User[] = await this.userRepository.find({
+        take,
+        skip,
+        order: {
+          [sortColumn]: sortOrder
+        }
+      });
 
-    const totalUsers: number = await this.userRepository.count();
-    const data: User[] = items.map((item: User) => this.userProps(item));
+      await this.userRepository.count();
 
-    return data;
+      return items.map((item: User) => this.userProps(item));
+    } catch (error) {
+      return error;
+    }
   }
 
   async getUserById(id: number): Promise<User | undefined> {
-    const user: User | undefined = await this.userRepository.findOne({ where: { id } });
+    try {
+      const user: User | undefined = await this.userRepository.findOne({ where: { id } });
 
-    if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
+      if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
-    return this.userProps(user);
+      return this.userProps(user);
+    } catch (error) {
+      return error;
+    }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const user: User | undefined = await this.userRepository.findOne({ where: { username } });
+    try {
+      const user: User | undefined = await this.userRepository.findOne({ where: { username } });
 
-    if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
+      if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
-    return user;
+      return user;
+    } catch (error) {
+      return error;
+    }
   }
 
   async updateUser(id: number, updateUser: UpdateUserDto): Promise<Partial<User>> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<User>> => {
-      await this.getUserById(id);
+    try {
+      return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<User>> => {
+        await this.getUserById(id);
 
-      if (updateUser.password) {
-        updateUser.password = await argon2.hash(updateUser.password);
-      }
+        if (updateUser.password) {
+          updateUser.password = await argon2.hash(updateUser.password);
+        }
 
-      await transactionalEntityManager.update(User, id, updateUser);
+        await transactionalEntityManager.update(User, id, updateUser);
 
-      return {
-        ...updateUser,
-        password: updateUser.password ? "Password updated successfully" : undefined
-      };
-    });
+        return {
+          ...updateUser,
+          password: updateUser.password ? "Password updated successfully" : undefined
+        };
+      });
+    } catch (error) {
+      return error;
+    }
   }
 
   async removeUser(id: number): Promise<void> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      await transactionalEntityManager.delete(User, id);
-    });
+    try {
+      return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+        await transactionalEntityManager.delete(User, id);
+      });
+    } catch (error) {
+      return error;
+    }
   }
 }

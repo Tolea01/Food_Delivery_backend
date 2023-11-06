@@ -15,83 +15,102 @@ export class RegionService {
     @InjectRepository(Region) private readonly regionRepository: Repository<Region>,
     private readonly entityManager: EntityManager,
     private readonly countryService: CountryService
-  ) {
-  }
+  ) {}
 
   async create(createRegionData: CreateRegionDto): Promise<Region | undefined> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Region> => {
-      const { name_en, name_ro, name_ru, country_id } = createRegionData;
-      const existRegion: Region | undefined = await transactionalEntityManager.findOne(Region, {
-        where: { name_en, name_ro, name_ru, country_id: { id: country_id } }
-      });
-
-      if (existRegion) {
-        throw new BadRequestException(appError.REGION_EXIST);
-      } else {
-        const country: Country = await this.countryService.getCountryById(country_id);
-        const region: Region = this.entityManager.create(Region, {
-          name_en,
-          name_ro,
-          name_ru,
-          country_id: country
+    try {
+      return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Region> => {
+        const existRegion: Region | undefined = await transactionalEntityManager.findOne(Region, {
+          where: { ...createRegionData, country_id: { id: createRegionData.country_id } }
         });
 
-        return await transactionalEntityManager.save(Region, region);
-      }
-    });
+        if (existRegion) {
+          throw new BadRequestException(appError.REGION_EXIST);
+        } else {
+          const country: Country = await this.countryService.getCountryById(createRegionData.country_id);
+          const region: Region = this.entityManager.create(Region, {
+            ...createRegionData,
+            country_id: country
+          });
+
+          return await transactionalEntityManager.save(Region, region);
+        }
+      });
+    } catch (error) {
+      return error;
+    }
   }
 
   async getAllRegions(language: string, sortBy?: string, name?: string, sortOrder?: "ASC" | "DESC"): Promise<GeoQueryResult[]> {
-    if (name || sortBy || sortOrder) {
-      const queryBuilder: SelectQueryBuilder<Region> = await this.regionRepository.createQueryBuilder("region");
+    try {
+      if (name || sortBy || sortOrder) {
+        const queryBuilder: SelectQueryBuilder<Region> = await this.regionRepository.createQueryBuilder("region");
 
-      queryBuilder
-        .where(name ? `region.name_${language} = :name` : "1=1", { name })
-        .orderBy(sortBy ? `region.${sortBy}` : "1=1", sortOrder || "ASC")
-        .select(sortBy ? [`region.id`, `region.${sortBy}`] : null);
+        queryBuilder
+          .where(name ? `region.name_${language} = :name` : "1=1", { name })
+          .orderBy(sortBy ? `region.${sortBy}` : "1=1", sortOrder || "ASC")
+          .select(sortBy ? [`region.id`, `region.${sortBy}`] : null);
 
-      const regions: Region[] = await queryBuilder.getMany();
+        const regions: Region[] = await queryBuilder.getMany();
 
-      return regions.map((region: Region) => ({
-        id: region.id,
-        [sortBy]: region[sortBy]
-      }));
-    } else {
-      return await this.regionRepository.find();
+        return regions.map((region: Region) => ({
+          id: region.id,
+          [sortBy]: region[sortBy]
+        }));
+      } else {
+        return await this.regionRepository.find();
+      }
+    } catch (error) {
+      return error;
     }
   }
 
   async getRegionById(id: number): Promise<Region | undefined> {
-    const region: Region | undefined = await this.regionRepository.findOne({ where: { id } });
+    try {
+      const region: Region | undefined = await this.regionRepository.findOne({ where: { id } });
 
-    if (!region) throw new NotFoundException(appError.REGION_NOT_FOUND);
+      if (!region) throw new NotFoundException(appError.REGION_NOT_FOUND);
 
-    return region;
+      return region;
+    } catch (error) {
+      return error;
+    }
   }
 
   async getRegionsByCountry(countryId: number): Promise<Region[] | undefined> {
-    await this.countryService.getCountryById(countryId);
+    try {
+      await this.countryService.getCountryById(countryId);
 
-    return await this.regionRepository.find({
-      where: {
-        country_id: { id: countryId }
-      }
-    });
+      return await this.regionRepository.find({
+        where: {
+          country_id: { id: countryId }
+        }
+      });
+    } catch (error) {
+      return error;
+    }
   }
 
   async updateRegion(id: number, updateRegionData: UpdateRegionDto): Promise<Partial<Region>> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Region>> => {
-      await this.getRegionById(id);
+    try {
+      return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<Partial<Region>> => {
+        await this.getRegionById(id);
+        await transactionalEntityManager.update(Region, id, updateRegionData);
 
-      await transactionalEntityManager.update(Region, id, updateRegionData);
-
-      return updateRegionData;
-    });
+        return updateRegionData;
+      });
+    } catch (error) {
+      return error;
+    }
   }
 
   async removeRegion(id: number): Promise<void> {
-    return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
-      await transactionalEntityManager.delete(Region, id);
-    });
+    try {
+      return await this.entityManager.transaction(async (transactionalEntityManager: EntityManager): Promise<void> => {
+        await transactionalEntityManager.delete(Region, id);
+      });
+    } catch (error) {
+      return error;
+    }
   }
 }

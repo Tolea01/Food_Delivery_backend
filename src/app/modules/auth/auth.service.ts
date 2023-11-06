@@ -17,19 +17,22 @@ export class AuthService {
   }
 
   async validateUser(payload: LoginDto): Promise<UserData> {
-    const user: User = await this.userService.getUserByUsername(payload.username);
+    try {
+      const user: User = await this.userService.getUserByUsername(payload.username);
 
-    if (user) {
-      const passwordIsMatch: boolean = await argon2.verify(user.password, payload.password);
+      if (user) {
+        const passwordIsMatch: boolean = await argon2.verify(user.password, payload.password);
 
-      if (passwordIsMatch) {
-        const userData = { ...user };
-        delete userData.password;
-        return userData;
+        if (passwordIsMatch) {
+          const userData = { ...user };
+          delete userData.password;
+          return userData;
+        }
       }
+      throw new UnauthorizedException(appError.INCORRECT_LOGIN_DATA);
+    } catch (error) {
+      return error;
     }
-
-    throw new UnauthorizedException(appError.INCORRECT_LOGIN_DATA);
   }
 
   async login(data: LoginDto): Promise<string> {
@@ -41,8 +44,8 @@ export class AuthService {
         username: user.username,
         role: user.role
       });
-    } catch (e) {
-      throw e;
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -51,17 +54,21 @@ export class AuthService {
   }
 
   async getUserByToken(token: string): Promise<User> {
-    const credentials = await this.jwtService.decode(token.replace("Bearer ", "")) as any;
+    try {
+      const credentials = await this.jwtService.decode(token.replace("Bearer ", "")) as any;
 
-    if (!credentials) throw new BadRequestException(appError.NO_CREDENTIALS);
+      if (!credentials) throw new BadRequestException(appError.NO_CREDENTIALS);
 
-    const { sub } = credentials;
+      const { sub } = credentials;
 
-    const user: User = await this.userService.getUserById(sub);
+      const user: User = await this.userService.getUserById(sub);
 
-    if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
+      if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
 
-    return user;
+      return user;
+    } catch (error) {
+      return error;
+    }
 
   }
 }
