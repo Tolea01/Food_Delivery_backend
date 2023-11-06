@@ -4,6 +4,7 @@ import { LoginDto } from "./dto/login.dto";
 import { CreateUserDto } from "@user/dto/create-user.dto";
 import { User } from "@user/entities/user.entity";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { LanguageHeader } from "@app/helpers/language-header";
 
 @ApiBearerAuth()
 @ApiTags("Authentification")
@@ -13,12 +14,14 @@ export class AuthController {
   }
 
   @Post("login")
+  @LanguageHeader()
   @ApiOperation({ summary: "User login" })
   async login(@Body() data: LoginDto): Promise<string> {
     return await this.authService.login(data);
   }
 
   @Post("register")
+  @LanguageHeader()
   @ApiOperation({ summary: "User registration" })
   async registerUser(@Body() data: CreateUserDto): Promise<Partial<User>> {
     return await this.authService.registerUser(data);

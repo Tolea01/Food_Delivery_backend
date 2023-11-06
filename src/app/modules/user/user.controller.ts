@@ -17,6 +17,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe
 } from "@nestjs/common";
+import { LanguageHeader } from "@app/helpers/language-header";
 
 @ApiTags("User CRUD")
 @ApiBearerAuth()
@@ -26,6 +27,7 @@ export class UserController {
   }
 
   @Post("register")
+  @LanguageHeader()
   @ApiOperation({ summary: "User registration" })
   async create(@Body() createUser: CreateUserDto): Promise<User> {
     return await this.userService.create(createUser);
@@ -46,7 +48,7 @@ export class UserController {
       new DefaultValuePipe(paginationConfig.itemsPerPage),
       ParseIntPipe
     )
-      itemsPerPage: number,
+    itemsPerPage: number,
     @Query(
       "page",
       new DefaultValuePipe(paginationConfig.page),
@@ -73,6 +75,7 @@ export class UserController {
   }
 
   @Patch(":id")
+  @LanguageHeader()
   @ApiOperation({ summary: "Update user by id" })
   async update(@Param("id", ParseIntPipe) id: number, @Body() updateUser: UpdateUserDto): Promise<Partial<User>> {
     return await this.userService.updateUser(id, updateUser);

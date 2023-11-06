@@ -5,6 +5,7 @@ import { CreateRegionDto } from "./dto/create-region.dto";
 import { Region } from "./entities/region.entity";
 import { GeoQueryResult } from "@app/interfaces/interfaces";
 import { UpdateRegionDto } from "./dto/update-region.dto";
+import { LanguageHeader } from "@app/helpers/language-header";
 
 @ApiTags("Region CRUD")
 @ApiBearerAuth()
@@ -14,12 +15,14 @@ export class RegionController {
   }
 
   @Post("create")
+  @LanguageHeader()
   @ApiOperation({ summary: "Create a new Region" })
   async create(@Body() createRegionData: CreateRegionDto): Promise<Region> {
     return await this.regionService.create(createRegionData);
   }
 
   @Get("list")
+  @LanguageHeader()
   @ApiOperation({
     summary: "Get region by param",
     description: "If parameters are not specified, all regions will be returned"
@@ -46,6 +49,7 @@ export class RegionController {
   };
 
   @Patch(":id")
+  @LanguageHeader()
   @ApiOperation({ summary: "Update region by id" })
   async updateRegion(@Param("id", ParseIntPipe) id: number, @Body() updateRegion: UpdateRegionDto): Promise<Partial<Region>> {
     return await this.regionService.updateRegion(id, updateRegion);

@@ -4,6 +4,7 @@ import { CreateCustomerDto } from "./dto/create-customer.dto";
 import { OrderCoCustomer } from "./entities/order-co-customer.entity";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UpdateCustomerDto } from "./dto/update-customer.dto";
+import { LanguageHeader } from "@app/helpers/language-header";
 
 @ApiTags("OrderCoCustomer CRUD")
 @ApiBearerAuth()
@@ -13,6 +14,7 @@ export class OrderCoCustomerController {
   }
 
   @Post("create")
+  @LanguageHeader()
   @ApiOperation({ summary: "Create a new Customer" })
   async create(@Body() createCustomerDto: CreateCustomerDto): Promise<OrderCoCustomer> {
     return await this.orderCoCustomerService.create(createCustomerDto);
@@ -25,6 +27,7 @@ export class OrderCoCustomerController {
   };
 
   @Get("list")
+  @LanguageHeader()
   @ApiOperation({
     summary: "Get customer by params",
     description: "If parameters are not specified, all customers will be returned"
@@ -35,6 +38,7 @@ export class OrderCoCustomerController {
   }
 
   @Patch(":id")
+  @LanguageHeader()
   @ApiOperation({ summary: "Update customer by id" })
   async updateCustomer(@Body() updateCustomerDto: UpdateCustomerDto, @Param("id", ParseIntPipe) id: number): Promise<Partial<OrderCoCustomer>> {
     return this.orderCoCustomerService.updateCustomer(id, updateCustomerDto);

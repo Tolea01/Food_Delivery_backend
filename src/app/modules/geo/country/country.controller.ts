@@ -5,6 +5,7 @@ import { CreateCountryDto } from "./dto/create-country.dto";
 import { Country } from "./entities/country.entity";
 import { UpdateCountryDto } from "./dto/update-country.dto";
 import { GeoQueryResult } from "@app/interfaces/interfaces";
+import { LanguageHeader } from "@app/helpers/language-header";
 
 @ApiTags("Country CRUD")
 @ApiBearerAuth()
@@ -14,18 +15,21 @@ export class CountryController {
   }
 
   @Post("create")
+  @LanguageHeader()
   @ApiOperation({ summary: "Create a new Country" })
   async create(@Body() createCountryData: CreateCountryDto): Promise<Country> {
     return await this.countryService.create(createCountryData);
   }
 
   @Get("list")
+  @LanguageHeader()
   @ApiOperation({
     summary: "Get country by params",
     description: "If parameters are not specified, all countries will be returned"
   })
   @ApiQuery({ name: "name", required: false })
   @ApiQuery({ name: "sortBy", required: false })
+  @ApiQuery({ name: "sortOrder", required: false })
   async getAllCountries(
     @Req() request: Request,
     @Query("sortBy") sortBy: string, @Query("name") name: string, @Query("sortOrder") sortOrder: "ASC" | "DESC"
@@ -40,6 +44,7 @@ export class CountryController {
   }
 
   @Patch(":id")
+  @LanguageHeader()
   @ApiOperation({ summary: "Update country by id" })
   async updateCountry(@Param("id", ParseIntPipe) id: number, @Body() updateCountry: UpdateCountryDto): Promise<Partial<Country>> {
     return await this.countryService.updateCountry(id, updateCountry);

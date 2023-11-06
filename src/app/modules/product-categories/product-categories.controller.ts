@@ -5,6 +5,7 @@ import { UpdateProductCategoryDto } from "./dto/update-product-category.dto";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { ProductCategory } from "./entities/product-category.entity";
 import { ProductCategoryQueryResult } from "@app/interfaces/interfaces";
+import { LanguageHeader } from "@app/helpers/language-header";
 
 @ApiTags("Product Category CRUD")
 @ApiBearerAuth()
@@ -14,12 +15,14 @@ export class ProductCategoriesController {
   }
 
   @Post("create")
+  @LanguageHeader()
   @ApiOperation({ summary: "Create a new product category" })
   async create(@Body() createProductCategoryDto: CreateProductCategoryDto): Promise<ProductCategory> {
     return await this.productCategoriesService.create(createProductCategoryDto);
   }
 
   @Get("list")
+  @LanguageHeader()
   @ApiOperation({
     summary: "Get country by params",
     description: "If parameters are not specified, all countries will be returned"
@@ -40,6 +43,7 @@ export class ProductCategoriesController {
   }
 
   @Patch(":id")
+  @LanguageHeader()
   @ApiOperation({ summary: "Update product category by id" })
   async update(@Param("id", ParseIntPipe) id: number, @Body() updateProductCategoryDto: UpdateProductCategoryDto): Promise<Partial<ProductCategory>> {
     return await this.productCategoriesService.update(id, updateProductCategoryDto);

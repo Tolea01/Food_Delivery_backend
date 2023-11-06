@@ -18,6 +18,7 @@ import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger"
 import { paginationConfig } from "../../config";
 import { Request } from "express";
 import { UpdateProductDto } from "./dto/update-product.dto";
+import { LanguageHeader } from "@app/helpers/language-header";
 
 @ApiBearerAuth()
 @ApiTags("Product CRUD")
@@ -27,12 +28,14 @@ export class ProductsController {
   }
 
   @Post("create")
+  @LanguageHeader()
   @ApiOperation({ summary: "Create a new product" })
   async create(@Body() createProductDto: CreateProductDto, @Req() req: Request): Promise<Product> {
     return await this.productsService.create(createProductDto, req.user);
   }
 
   @Get("list")
+  @LanguageHeader()
   @ApiOperation({
     summary: "Get products by params",
     description: "This route returns a list of all products, or products specified by parameters"
@@ -80,6 +83,7 @@ export class ProductsController {
   }
 
   @Patch(":id")
+  @LanguageHeader()
   @ApiOperation({ summary: "Update product by id" })
   async update(@Param("id", ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto, @Req() req: Request): Promise<Partial<Product>> {
     return await this.productsService.update(id, updateProductDto, req.user);
