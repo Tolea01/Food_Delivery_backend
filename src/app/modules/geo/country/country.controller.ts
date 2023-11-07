@@ -1,58 +1,80 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { CountryService } from "./country.service";
-import { CreateCountryDto } from "./dto/create-country.dto";
-import { Country } from "./entities/country.entity";
-import { UpdateCountryDto } from "./dto/update-country.dto";
-import { GeoQueryResult } from "@app/interfaces/interfaces";
-import { LanguageHeader } from "@app/helpers/language-header";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { CountryService } from './country.service';
+import { CreateCountryDto } from './dto/create-country.dto';
+import { Country } from './entities/country.entity';
+import { UpdateCountryDto } from './dto/update-country.dto';
+import { GeoQueryResult } from '@app/interfaces/interfaces';
+import { LanguageHeader } from '@app/helpers/language-header';
 
-@ApiTags("Country CRUD")
+@ApiTags('Country CRUD')
 @ApiBearerAuth()
-@Controller("country")
+@Controller('country')
 export class CountryController {
-  constructor(private readonly countryService: CountryService) {
-  }
+  constructor(private readonly countryService: CountryService) {}
 
-  @Post("create")
+  @Post('create')
   @LanguageHeader()
-  @ApiOperation({ summary: "Create a new Country" })
+  @ApiOperation({ summary: 'Create a new Country' })
   async create(@Body() createCountryData: CreateCountryDto): Promise<Country> {
     return await this.countryService.create(createCountryData);
   }
 
-  @Get("list")
+  @Get('list')
   @LanguageHeader()
   @ApiOperation({
-    summary: "Get country by params",
-    description: "If parameters are not specified, all countries will be returned"
+    summary: 'Get country by params',
+    description: 'If parameters are not specified, all countries will be returned',
   })
-  @ApiQuery({ name: "name", required: false })
-  @ApiQuery({ name: "sortBy", required: false })
-  @ApiQuery({ name: "sortOrder", required: false })
+  @ApiQuery({ name: 'name', required: false })
+  @ApiQuery({ name: 'sortBy', required: false })
+  @ApiQuery({ name: 'sortOrder', required: false })
   async getAllCountries(
     @Req() request: Request,
-    @Query("sortBy") sortBy: string, @Query("name") name: string, @Query("sortOrder") sortOrder: "ASC" | "DESC"
+    @Query('sortBy') sortBy: string,
+    @Query('name') name: string,
+    @Query('sortOrder') sortOrder: 'ASC' | 'DESC',
   ): Promise<GeoQueryResult[]> {
-    return await this.countryService.getAllCountries(request.headers["language"], sortBy, name, sortOrder);
+    return await this.countryService.getAllCountries(
+      request.headers['language'],
+      sortBy,
+      name,
+      sortOrder,
+    );
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Get country by id" })
-  async getCountryById(@Param("id", ParseIntPipe) id: number): Promise<Country | undefined> {
+  @Get(':id')
+  @ApiOperation({ summary: 'Get country by id' })
+  async getCountryById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Country | undefined> {
     return await this.countryService.getCountryById(id);
   }
 
-  @Patch(":id")
+  @Patch(':id')
   @LanguageHeader()
-  @ApiOperation({ summary: "Update country by id" })
-  async updateCountry(@Param("id", ParseIntPipe) id: number, @Body() updateCountry: UpdateCountryDto): Promise<Partial<Country>> {
+  @ApiOperation({ summary: 'Update country by id' })
+  async updateCountry(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCountry: UpdateCountryDto,
+  ): Promise<Partial<Country>> {
     return await this.countryService.updateCountry(id, updateCountry);
   }
 
-  @Delete(":id")
-  @ApiOperation({ summary: "Delete country by id" })
-  async deleteCountry(@Param("id", ParseIntPipe) id: number): Promise<void> {
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete country by id' })
+  async deleteCountry(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return await this.countryService.deleteCountry(id);
   }
 }

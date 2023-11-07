@@ -2,7 +2,7 @@ const paginationConfig = {
   page: 1,
   itemsPerPage: 10,
   sortOrder: 'ASC',
-  sortColumn: 'id'
-}
+  sortColumn: 'id',
+};
 
 export default paginationConfig;

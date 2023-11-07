@@ -1,27 +1,34 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { UserService } from "@user/user.service";
-import * as argon2 from "argon2";
-import { JwtService } from "@nestjs/jwt";
-import { LoginDto } from "./dto/login.dto";
-import { CreateUserDto } from "@user/dto/create-user.dto";
-import { User } from "@user/entities/user.entity";
-import appError from "src/app/config/appError";
-import { UserData } from "@app/interfaces/interfaces";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { UserService } from '@user/user.service';
+import * as argon2 from 'argon2';
+import { JwtService } from '@nestjs/jwt';
+import { LoginDto } from './dto/login.dto';
+import { CreateUserDto } from '@user/dto/create-user.dto';
+import { User } from '@user/entities/user.entity';
+import appError from 'src/app/config/appError';
+import { UserData } from '@app/interfaces/interfaces';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService
-  ) {
-  }
+    private readonly jwtService: JwtService,
+  ) {}
 
   async validateUser(payload: LoginDto): Promise<UserData> {
     try {
       const user: User = await this.userService.getUserByUsername(payload.username);
 
       if (user) {
-        const passwordIsMatch: boolean = await argon2.verify(user.password, payload.password);
+        const passwordIsMatch: boolean = await argon2.verify(
+          user.password,
+          payload.password,
+        );
 
         if (passwordIsMatch) {
           const userData = { ...user };
@@ -42,7 +49,7 @@ export class AuthService {
         sub: user.id,
         id: user.id,
         username: user.username,
-        role: user.role
+        role: user.role,
       });
     } catch (error) {
       throw error;
@@ -55,7 +62,9 @@ export class AuthService {
 
   async getUserByToken(token: string): Promise<User> {
     try {
-      const credentials = await this.jwtService.decode(token.replace("Bearer ", "")) as any;
+      const credentials = (await this.jwtService.decode(
+        token.replace('Bearer ', ''),
+      )) as any;
 
       if (!credentials) throw new BadRequestException(appError.NO_CREDENTIALS);
 
@@ -69,6 +78,5 @@ export class AuthService {
     } catch (error) {
       return error;
     }
-
   }
 }

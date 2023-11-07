@@ -1,5 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { createUniqueColumnOptions } from "src/app/helpers/column-helpers";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { createUniqueColumnOptions } from 'src/app/helpers/column-helpers';
 
 @Entity()
 export class OrderCoCustomer {
@@ -7,5 +7,5 @@ export class OrderCoCustomer {
   id: number;
 
   @Column(createUniqueColumnOptions(100))
-  name: string
+  name: string;
 }

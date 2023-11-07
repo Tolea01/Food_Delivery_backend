@@ -11,10 +11,10 @@ import jwtConfig from 'src/app/config/jwt';
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       useFactory: jwtConfig,
-    })
+    }),
   ],
   controllers: [UserController],
   providers: [UserService],
-  exports: [UserService]
+  exports: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

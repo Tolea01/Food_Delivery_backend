@@ -1,5 +1,5 @@
-import { applyDecorators } from "@nestjs/common";
-import { ApiHeader } from "@nestjs/swagger";
+import { applyDecorators } from '@nestjs/common';
+import { ApiHeader } from '@nestjs/swagger';
 
 export function LanguageHeader() {
   return applyDecorators(
@@ -12,5 +12,5 @@ export function LanguageHeader() {
         default: 'ro',
       },
     }),
-  )
+  );
 }

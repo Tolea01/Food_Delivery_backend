@@ -1,6 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { createUniqueColumnOptions } from "@helpers/column-helpers";
-import { Product } from "@products/entities/product.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { createUniqueColumnOptions } from '@helpers/column-helpers';
+import { Product } from '@products/entities/product.entity';
 
 @Entity()
 export class ProductCategory {

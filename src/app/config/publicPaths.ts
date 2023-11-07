@@ -1,1 +1,1 @@
-export default ['user/register', 'auth/login']
+export default ['user/register', 'auth/login'];

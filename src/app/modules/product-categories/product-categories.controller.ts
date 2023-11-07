@@ -1,57 +1,79 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, Req } from "@nestjs/common";
-import { ProductCategoriesService } from "./product-categories.service";
-import { CreateProductCategoryDto } from "./dto/create-product-category.dto";
-import { UpdateProductCategoryDto } from "./dto/update-product-category.dto";
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { ProductCategory } from "./entities/product-category.entity";
-import { ProductCategoryQueryResult } from "@app/interfaces/interfaces";
-import { LanguageHeader } from "@app/helpers/language-header";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseIntPipe,
+  Req,
+} from '@nestjs/common';
+import { ProductCategoriesService } from './product-categories.service';
+import { CreateProductCategoryDto } from './dto/create-product-category.dto';
+import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ProductCategory } from './entities/product-category.entity';
+import { ProductCategoryQueryResult } from '@app/interfaces/interfaces';
+import { LanguageHeader } from '@app/helpers/language-header';
 
-@ApiTags("Product Category CRUD")
+@ApiTags('Product Category CRUD')
 @ApiBearerAuth()
-@Controller("product-category")
+@Controller('product-category')
 export class ProductCategoriesController {
-  constructor(private readonly productCategoriesService: ProductCategoriesService) {
-  }
+  constructor(private readonly productCategoriesService: ProductCategoriesService) {}
 
-  @Post("create")
+  @Post('create')
   @LanguageHeader()
-  @ApiOperation({ summary: "Create a new product category" })
-  async create(@Body() createProductCategoryDto: CreateProductCategoryDto): Promise<ProductCategory> {
+  @ApiOperation({ summary: 'Create a new product category' })
+  async create(
+    @Body() createProductCategoryDto: CreateProductCategoryDto,
+  ): Promise<ProductCategory> {
     return await this.productCategoriesService.create(createProductCategoryDto);
   }
 
-  @Get("list")
+  @Get('list')
   @LanguageHeader()
   @ApiOperation({
-    summary: "Get country by params",
-    description: "If parameters are not specified, all countries will be returned"
+    summary: 'Get country by params',
+    description: 'If parameters are not specified, all countries will be returned',
   })
-  @ApiQuery({ name: "name", required: false })
-  @ApiQuery({ name: "sortBy", required: false })
+  @ApiQuery({ name: 'name', required: false })
+  @ApiQuery({ name: 'sortBy', required: false })
   async findAll(
     @Req() request: Request,
-    @Query("name") name: string, @Query("sortBy") sortBy: string, @Query("sortOrder") sortOrder: "ASC" | "DESC"
+    @Query('name') name: string,
+    @Query('sortBy') sortBy: string,
+    @Query('sortOrder') sortOrder: 'ASC' | 'DESC',
   ): Promise<ProductCategoryQueryResult[]> {
-    return await this.productCategoriesService.getAllProductCategories(request.headers["language"], name, sortBy, sortOrder);
+    return await this.productCategoriesService.getAllProductCategories(
+      request.headers['language'],
+      name,
+      sortBy,
+      sortOrder,
+    );
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Get product category by id" })
-  async findOne(@Param("id", ParseIntPipe) id: number): Promise<ProductCategory> {
+  @Get(':id')
+  @ApiOperation({ summary: 'Get product category by id' })
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<ProductCategory> {
     return await this.productCategoriesService.getProductCategoryById(id);
   }
 
-  @Patch(":id")
+  @Patch(':id')
   @LanguageHeader()
-  @ApiOperation({ summary: "Update product category by id" })
-  async update(@Param("id", ParseIntPipe) id: number, @Body() updateProductCategoryDto: UpdateProductCategoryDto): Promise<Partial<ProductCategory>> {
+  @ApiOperation({ summary: 'Update product category by id' })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProductCategoryDto: UpdateProductCategoryDto,
+  ): Promise<Partial<ProductCategory>> {
     return await this.productCategoriesService.update(id, updateProductCategoryDto);
   }
 
-  @Delete(":id")
-  @ApiOperation({ summary: "Delete product category by id" })
-  async remove(@Param("id", ParseIntPipe) id: number): Promise<void> {
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete product category by id' })
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return await this.productCategoriesService.remove(id);
   }
 }

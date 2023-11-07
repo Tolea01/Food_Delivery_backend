@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, Unique, OneToMany } from "typeorm";
-import { UserRole } from "./user-role.enum";
-import { createUniqueColumnOptions } from "src/app/helpers/column-helpers";
-import { Product } from "@products/entities/product.entity";
+import { Entity, PrimaryGeneratedColumn, Column, Unique, OneToMany } from 'typeorm';
+import { UserRole } from './user-role.enum';
+import { createUniqueColumnOptions } from 'src/app/helpers/column-helpers';
+import { Product } from '@products/entities/product.entity';
 
 @Entity()
-@Unique(["username"])
+@Unique(['username'])
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -15,7 +15,7 @@ export class User {
   @Column(createUniqueColumnOptions())
   password: string;
 
-  @Column({ type: "enum", enum: UserRole, default: UserRole.Admin })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.Admin })
   role: UserRole;
 
   @OneToMany(() => Product, (product: Product) => product.created_by)

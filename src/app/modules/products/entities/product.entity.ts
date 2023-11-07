@@ -1,7 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { createUniqueColumnOptions } from "@helpers/column-helpers";
-import { ProductCategory } from "@product-categories/entities/product-category.entity";
-import { User } from "@user/entities/user.entity";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { createUniqueColumnOptions } from '@helpers/column-helpers';
+import { ProductCategory } from '@product-categories/entities/product-category.entity';
+import { User } from '@user/entities/user.entity';
 
 @Entity()
 export class Product {
@@ -30,45 +30,48 @@ export class Product {
   photo: string;
 
   @Column({
-    type: "decimal",
+    type: 'decimal',
     precision: 10,
     scale: 2,
     default: 0,
-    nullable: false
+    nullable: false,
   })
   price: number;
 
-  @ManyToOne(() => ProductCategory, (productCategory: ProductCategory) => productCategory.id)
-  @JoinColumn({ name: "category_id" })
+  @ManyToOne(
+    () => ProductCategory,
+    (productCategory: ProductCategory) => productCategory.id,
+  )
+  @JoinColumn({ name: 'category_id' })
   category_id: ProductCategory;
 
   @Column({
-    type: "timestamp",
-    default: (): string => "CURRENT_TIMESTAMP(6)",
-    precision: 6
+    type: 'timestamp',
+    default: (): string => 'CURRENT_TIMESTAMP(6)',
+    precision: 6,
   })
   created_at: Date;
 
   @ManyToOne(() => User, (user: User) => user.id)
-  @JoinColumn({ name: "created_by" })
+  @JoinColumn({ name: 'created_by' })
   created_by: User;
 
   @Column({
-    type: "timestamp",
-    default: (): string => "CURRENT_TIMESTAMP(6)",
+    type: 'timestamp',
+    default: (): string => 'CURRENT_TIMESTAMP(6)',
     precision: 6,
-    onUpdate: "CURRENT_TIMESTAMP(6)"
+    onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   updated_at: Date;
 
   @ManyToOne(() => User, (user: User) => user.id)
-  @JoinColumn({ name: "updated_by" })
+  @JoinColumn({ name: 'updated_by' })
   updated_by: User;
 
-  @Column({ type: "timestamp", default: null })
+  @Column({ type: 'timestamp', default: null })
   deleted_at: Date;
 
   @ManyToOne(() => User, (user: User) => user.id)
-  @JoinColumn({ name: "deleted_by" })
+  @JoinColumn({ name: 'deleted_by' })
   deleted_by: User;
 }
