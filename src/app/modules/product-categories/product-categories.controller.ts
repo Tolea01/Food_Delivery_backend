@@ -13,10 +13,12 @@ import {
 import { ProductCategoriesService } from './product-categories.service';
 import { CreateProductCategoryDto } from './dto/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProductCategory } from './entities/product-category.entity';
 import { ProductCategoryQueryResult } from '@app/interfaces/interfaces';
 import { LanguageHeader } from '@app/helpers/language-header';
+import { ParamsApiOperation } from '@app/helpers/params-api-operation';
+import { QueryApiOperation } from '@app/helpers/query-api-operation';
 
 @ApiTags('Product Category CRUD')
 @ApiBearerAuth()
@@ -35,12 +37,9 @@ export class ProductCategoriesController {
 
   @Get('list')
   @LanguageHeader()
-  @ApiOperation({
-    summary: 'Get country by params',
-    description: 'If parameters are not specified, all countries will be returned',
-  })
-  @ApiQuery({ name: 'name', required: false })
-  @ApiQuery({ name: 'sortBy', required: false })
+  @ParamsApiOperation('product category')
+  @QueryApiOperation('name')
+  @QueryApiOperation('sortBy')
   async findAll(
     @Req() request: Request,
     @Query('name') name: string,

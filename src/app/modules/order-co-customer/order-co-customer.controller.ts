@@ -12,9 +12,11 @@ import {
 import { OrderCoCustomerService } from './order-co-customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { OrderCoCustomer } from './entities/order-co-customer.entity';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { LanguageHeader } from '@app/helpers/language-header';
+import { ParamsApiOperation } from '@app/helpers/params-api-operation';
+import { QueryApiOperation } from '@app/helpers/query-api-operation';
 
 @ApiTags('OrderCoCustomer CRUD')
 @ApiBearerAuth()
@@ -37,11 +39,8 @@ export class OrderCoCustomerController {
 
   @Get('list')
   @LanguageHeader()
-  @ApiOperation({
-    summary: 'Get customer by params',
-    description: 'If parameters are not specified, all customers will be returned',
-  })
-  @ApiQuery({ name: 'name', required: false })
+  @ParamsApiOperation('customer')
+  @QueryApiOperation('name')
   async getAllCustomers(@Query('name') name: string): Promise<OrderCoCustomer[]> {
     return await this.orderCoCustomerService.getAllCustomers(name);
   }

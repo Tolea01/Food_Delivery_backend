@@ -11,12 +11,14 @@ import {
   Req,
 } from '@nestjs/common';
 import { LocationService } from './location.service';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { Location } from './entities/location.entity';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { GeoQueryResult } from '@app/interfaces/interfaces';
 import { LanguageHeader } from '@app/helpers/language-header';
+import { ParamsApiOperation } from '@app/helpers/params-api-operation';
+import { QueryApiOperation } from '@app/helpers/query-api-operation';
 
 @ApiTags('Location CRUD')
 @ApiBearerAuth()
@@ -33,12 +35,9 @@ export class LocationController {
 
   @Get('list')
   @LanguageHeader()
-  @ApiOperation({
-    summary: 'Get location by params',
-    description: 'If parameters are not specified, all locations will be returned',
-  })
-  @ApiQuery({ name: 'name', required: false })
-  @ApiQuery({ name: 'sortBy', required: false })
+  @ParamsApiOperation('location')
+  @QueryApiOperation('name')
+  @QueryApiOperation('sortBy')
   async getAllLocations(
     @Req() request: Request,
     @Query('name') name: string,

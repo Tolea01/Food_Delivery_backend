@@ -10,13 +10,15 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CountryService } from './country.service';
 import { CreateCountryDto } from './dto/create-country.dto';
 import { Country } from './entities/country.entity';
 import { UpdateCountryDto } from './dto/update-country.dto';
 import { GeoQueryResult } from '@app/interfaces/interfaces';
 import { LanguageHeader } from '@app/helpers/language-header';
+import { QueryApiOperation } from '@app/helpers/query-api-operation';
+import { ParamsApiOperation } from '@app/helpers/params-api-operation';
 
 @ApiTags('Country CRUD')
 @ApiBearerAuth()
@@ -33,13 +35,10 @@ export class CountryController {
 
   @Get('list')
   @LanguageHeader()
-  @ApiOperation({
-    summary: 'Get country by params',
-    description: 'If parameters are not specified, all countries will be returned',
-  })
-  @ApiQuery({ name: 'name', required: false })
-  @ApiQuery({ name: 'sortBy', required: false })
-  @ApiQuery({ name: 'sortOrder', required: false })
+  @ParamsApiOperation('country')
+  @QueryApiOperation('name')
+  @QueryApiOperation('sortBy')
+  @QueryApiOperation('sortOrder')
   async getAllCountries(
     @Req() request: Request,
     @Query('sortBy') sortBy: string,

@@ -14,11 +14,13 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './entities/product.entity';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { paginationConfig } from '../../config';
 import { Request } from 'express';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { LanguageHeader } from '@app/helpers/language-header';
+import { ParamsApiOperation } from '@app/helpers/params-api-operation';
+import { QueryApiOperation } from '@app/helpers/query-api-operation';
 
 @ApiBearerAuth()
 @ApiTags('Product CRUD')
@@ -38,18 +40,14 @@ export class ProductsController {
 
   @Get('list')
   @LanguageHeader()
-  @ApiOperation({
-    summary: 'Get products by params',
-    description:
-      'This route returns a list of all products, or products specified by parameters',
-  })
-  @ApiQuery({ name: 'pageSize', required: false })
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'sortBy', required: false })
-  @ApiQuery({ name: 'orderBy', required: false })
-  @ApiQuery({ name: 'name', required: false })
-  @ApiQuery({ name: 'maxPrice', required: false })
-  @ApiQuery({ name: 'minPrice', required: false })
+  @ParamsApiOperation('products')
+  @QueryApiOperation('pageSize')
+  @QueryApiOperation('page')
+  @QueryApiOperation('sortBy')
+  @QueryApiOperation('orderBy')
+  @QueryApiOperation('name')
+  @QueryApiOperation('maxPrice')
+  @QueryApiOperation('minPrice')
   async findAll(
     @Req() request: Request,
     @Query('sortBy') sortBy: string,

@@ -3,8 +3,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import paginationConfig from 'src/app/config/pagination';
 import { User } from './entities/user.entity';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { LanguageHeader } from '@app/helpers/language-header';
+import { ParamsApiOperation } from '@app/helpers/params-api-operation';
+import { QueryApiOperation } from '@app/helpers/query-api-operation';
 import {
   Body,
   Controller,
@@ -17,7 +19,6 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { LanguageHeader } from '@app/helpers/language-header';
 
 @ApiTags('User CRUD')
 @ApiBearerAuth()
@@ -33,15 +34,11 @@ export class UserController {
   }
 
   @Get('list')
-  @ApiOperation({
-    summary: 'Get users by params',
-    description:
-      'This route returns a list of all users, or users specified by parameters',
-  })
-  @ApiQuery({ name: 'itemsPerPage', required: false })
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'sortOrder', required: false })
-  @ApiQuery({ name: 'sortColumn', required: false })
+  @ParamsApiOperation('users')
+  @QueryApiOperation('itemsPerPage')
+  @QueryApiOperation('page')
+  @QueryApiOperation('sortOrder')
+  @QueryApiOperation('sortColumn')
   async getAll(
     @Query(
       'itemsPerPage',

@@ -10,13 +10,15 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RegionService } from './region.service';
 import { CreateRegionDto } from './dto/create-region.dto';
 import { Region } from './entities/region.entity';
 import { GeoQueryResult } from '@app/interfaces/interfaces';
 import { UpdateRegionDto } from './dto/update-region.dto';
 import { LanguageHeader } from '@app/helpers/language-header';
+import { ParamsApiOperation } from '@app/helpers/params-api-operation';
+import { QueryApiOperation } from '@app/helpers/query-api-operation';
 
 @ApiTags('Region CRUD')
 @ApiBearerAuth()
@@ -33,12 +35,9 @@ export class RegionController {
 
   @Get('list')
   @LanguageHeader()
-  @ApiOperation({
-    summary: 'Get region by param',
-    description: 'If parameters are not specified, all regions will be returned',
-  })
-  @ApiQuery({ name: 'name', required: false })
-  @ApiQuery({ name: 'sortBy', required: false })
+  @ParamsApiOperation('region')
+  @QueryApiOperation('name')
+  @QueryApiOperation('sortBy')
   async getAllRegions(
     @Req() request: Request,
     @Query('sortBy') sortBy: string,
