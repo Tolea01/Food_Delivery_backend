@@ -45,7 +45,7 @@ export class LocationService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -75,21 +75,17 @@ export class LocationService {
         return await this.locationRepository.find();
       }
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
   async getLocationById(id: number): Promise<Location | undefined> {
     try {
-      const location: Location | undefined = await this.locationRepository.findOne({
+      return await this.locationRepository.findOneOrFail({
         where: { id },
       });
-
-      if (!location) throw new NotFoundException(appError.LOCATION_NOT_FOUND);
-
-      return location;
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -121,7 +117,7 @@ export class LocationService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -133,7 +129,7 @@ export class LocationService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 }

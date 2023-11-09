@@ -36,9 +36,8 @@ export class AuthService {
           return userData;
         }
       }
-      throw new UnauthorizedException(appError.INCORRECT_LOGIN_DATA);
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -52,7 +51,7 @@ export class AuthService {
         role: user.role,
       });
     } catch (error) {
-      throw error;
+      return error.message;
     }
   }
 
@@ -76,7 +75,7 @@ export class AuthService {
 
       return user;
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 }

@@ -50,7 +50,7 @@ export class ProductsService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -86,35 +86,27 @@ export class ProductsService {
 
       return await queryBuilder.getMany();
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
   async findOne(id: number): Promise<Product | undefined> {
     try {
-      const product: Product | undefined = await this.productRepository.findOne({
+      return await this.productRepository.findOneOrFail({
         where: { id, deleted_at: IsNull() },
       });
-
-      if (!product) throw new NotFoundException(appError.PRODUCT_NOT_FOUND);
-
-      return product;
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
   async getOne(id: number): Promise<Product | undefined> {
     try {
-      const product: Product | undefined = await this.productRepository.findOne({
+      return await this.productRepository.findOneOrFail({
         where: { id },
       });
-
-      if (!product) throw new NotFoundException(appError.PRODUCT_NOT_FOUND);
-
-      return product;
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -129,7 +121,7 @@ export class ProductsService {
         },
       });
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -152,7 +144,7 @@ export class ProductsService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -169,7 +161,7 @@ export class ProductsService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -186,7 +178,7 @@ export class ProductsService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -198,7 +190,7 @@ export class ProductsService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 }

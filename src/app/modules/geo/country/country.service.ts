@@ -33,7 +33,7 @@ export class CountryService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -63,19 +63,17 @@ export class CountryService {
         return await this.countryRepository.find();
       }
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
   async getCountryById(id: number): Promise<Country | undefined> {
     try {
-      const country: Country = await this.countryRepository.findOne({ where: { id } });
-
-      if (!country) throw new NotFoundException(appError.COUNTRY_NOT_FOUND);
-
-      return country;
+      return await this.countryRepository.findOneOrFail({
+        where: { id },
+      });
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -93,7 +91,7 @@ export class CountryService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -105,7 +103,7 @@ export class CountryService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 }

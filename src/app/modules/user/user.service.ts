@@ -44,7 +44,7 @@ export class UserService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -75,17 +75,13 @@ export class UserService {
 
       return items.map((item: User) => this.userProps(item));
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
   async getUserById(id: number): Promise<User | undefined> {
     try {
-      const user: User | undefined = await this.userRepository.findOne({ where: { id } });
-
-      if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
-
-      return this.userProps(user);
+      return await this.userRepository.findOneOrFail({ where: { id } });
     } catch (error) {
       return error;
     }
@@ -93,13 +89,9 @@ export class UserService {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     try {
-      const user: User | undefined = await this.userRepository.findOne({
+      return await this.userRepository.findOneOrFail({
         where: { username },
       });
-
-      if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
-
-      return user;
     } catch (error) {
       return error;
     }
@@ -124,7 +116,7 @@ export class UserService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -136,7 +128,7 @@ export class UserService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 }

@@ -45,7 +45,7 @@ export class RegionService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -75,21 +75,17 @@ export class RegionService {
         return await this.regionRepository.find();
       }
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
   async getRegionById(id: number): Promise<Region | undefined> {
     try {
-      const region: Region | undefined = await this.regionRepository.findOne({
+      return await this.regionRepository.findOneOrFail({
         where: { id },
       });
-
-      if (!region) throw new NotFoundException(appError.REGION_NOT_FOUND);
-
-      return region;
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -103,7 +99,7 @@ export class RegionService {
         },
       });
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -121,7 +117,7 @@ export class RegionService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -133,7 +129,7 @@ export class RegionService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 }

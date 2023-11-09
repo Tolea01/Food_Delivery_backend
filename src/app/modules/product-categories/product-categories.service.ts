@@ -39,7 +39,7 @@ export class ProductCategoriesService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -69,21 +69,15 @@ export class ProductCategoriesService {
         return await this.productCategoryRepository.find();
       }
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
   async getProductCategoryById(id: number): Promise<ProductCategory> {
     try {
-      const productCategory: ProductCategory =
-        await this.productCategoryRepository.findOne({ where: { id } });
-
-      if (!productCategory)
-        throw new BadRequestException(appError.PRODUCT_CATEGORY_NOT_FOUND);
-
-      return productCategory;
+      return await this.productCategoryRepository.findOneOrFail({ where: { id } });
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -107,7 +101,7 @@ export class ProductCategoriesService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 
@@ -119,7 +113,7 @@ export class ProductCategoriesService {
         },
       );
     } catch (error) {
-      return error;
+      return error.message;
     }
   }
 }
