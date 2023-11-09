@@ -6,5 +6,6 @@
   "INVALID_NUMBER": "{property} must be a valid number",
   "MAX": "{property} with value: \"{value}\" needs to be less than {constraints.0}",
   "INVALID_DECIMAL": "{property} must be a valid decimal number",
-  "INVALID_DATE_STRING": "{property} must be a valid date string"
+  "INVALID_DATE_STRING": "{property} must be a valid date string",
+  "INVALID_PROPERTY": "{property} is not valid"
 }

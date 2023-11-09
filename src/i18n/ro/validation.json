@@ -6,5 +6,6 @@
   "INVALID_NUMBER": "{property} trebuie să fie un număr valid",
   "MAX": "{property} cu valoarea: \"{value}\" trebuie să fie mai mic de {constraints.0}",
   "INVALID_DECIMAL": "{property} trebuie să fie un număr zecimal valid",
-  "INVALID_DATE_STRING": "{property} trebuie să fie o șir de caractere de dată validă"
+  "INVALID_DATE_STRING": "{property} trebuie să fie o șir de caractere de dată validă",
+  "INVALID_PROPERTY": "{property} nu este valid"
 }
