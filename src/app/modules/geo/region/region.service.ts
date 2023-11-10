@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Region } from './entities/region.entity';
 import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
@@ -45,7 +45,7 @@ export class RegionService {
         },
       );
     } catch (error) {
-      return error.message;
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -75,7 +75,7 @@ export class RegionService {
         return await this.regionRepository.find();
       }
     } catch (error) {
-      return error.message;
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -85,7 +85,7 @@ export class RegionService {
         where: { id },
       });
     } catch (error) {
-      return error.message;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -99,7 +99,7 @@ export class RegionService {
         },
       });
     } catch (error) {
-      return error.message;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -117,7 +117,11 @@ export class RegionService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 
@@ -129,7 +133,11 @@ export class RegionService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 }

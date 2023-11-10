@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderCoCustomer } from './entities/order-co-customer.entity';
 import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
@@ -34,7 +39,7 @@ export class OrderCoCustomerService {
         },
       );
     } catch (error) {
-      return error.message;
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -42,7 +47,7 @@ export class OrderCoCustomerService {
     try {
       return await this.orderCoCustomerRepository.findOneOrFail({ where: { id } });
     } catch (error) {
-      return error.message;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -55,7 +60,7 @@ export class OrderCoCustomerService {
 
       return queryBuilder.getMany();
     } catch (error) {
-      return error.message;
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -75,7 +80,11 @@ export class OrderCoCustomerService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 
@@ -87,7 +96,11 @@ export class OrderCoCustomerService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 }

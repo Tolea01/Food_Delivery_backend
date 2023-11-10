@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -44,7 +49,7 @@ export class UserService {
         },
       );
     } catch (error) {
-      return error.message;
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -75,7 +80,7 @@ export class UserService {
 
       return items.map((item: User) => this.userProps(item));
     } catch (error) {
-      return error.message;
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -83,7 +88,7 @@ export class UserService {
     try {
       return await this.userRepository.findOneOrFail({ where: { id } });
     } catch (error) {
-      return error;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -93,7 +98,7 @@ export class UserService {
         where: { username },
       });
     } catch (error) {
-      return error;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -116,7 +121,11 @@ export class UserService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 
@@ -128,7 +137,11 @@ export class UserService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 }

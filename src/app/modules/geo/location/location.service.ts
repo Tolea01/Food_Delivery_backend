@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Location } from './entities/location.entity';
 import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
@@ -45,7 +50,7 @@ export class LocationService {
         },
       );
     } catch (error) {
-      return error.message;
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -75,7 +80,7 @@ export class LocationService {
         return await this.locationRepository.find();
       }
     } catch (error) {
-      return error.message;
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -85,7 +90,7 @@ export class LocationService {
         where: { id },
       });
     } catch (error) {
-      return error.message;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -99,7 +104,7 @@ export class LocationService {
         },
       });
     } catch (error) {
-      return error;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -117,7 +122,11 @@ export class LocationService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 
@@ -129,7 +138,11 @@ export class LocationService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 }

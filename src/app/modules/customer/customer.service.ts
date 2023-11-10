@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -49,7 +54,7 @@ export class CustomerService {
         },
       );
     } catch (error) {
-      return error.message;
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -77,7 +82,7 @@ export class CustomerService {
 
       return await queryBuilder.getMany();
     } catch (error) {
-      return error.message;
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -87,7 +92,7 @@ export class CustomerService {
         where: { id },
       });
     } catch (error) {
-      return error.message;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -103,7 +108,11 @@ export class CustomerService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw error.message;
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 
@@ -115,7 +124,11 @@ export class CustomerService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw error.message;
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 }

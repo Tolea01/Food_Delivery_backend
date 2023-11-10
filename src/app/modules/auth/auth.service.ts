@@ -37,7 +37,7 @@ export class AuthService {
         }
       }
     } catch (error) {
-      return error.message;
+      throw new UnauthorizedException(error.message);
     }
   }
 
@@ -51,12 +51,16 @@ export class AuthService {
         role: user.role,
       });
     } catch (error) {
-      return error.message;
+      throw new UnauthorizedException(error.message);
     }
   }
 
   async registerUser(user: CreateUserDto): Promise<Partial<User>> {
-    return await this.userService.create(user);
+    try {
+      return await this.userService.create(user);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async getUserByToken(token: string): Promise<User> {
@@ -65,17 +69,21 @@ export class AuthService {
         token.replace('Bearer ', ''),
       )) as any;
 
-      if (!credentials) throw new BadRequestException(appError.NO_CREDENTIALS);
+      if (!credentials) {
+        throw new BadRequestException(appError.NO_CREDENTIALS);
+      }
 
       const { sub } = credentials;
 
       const user: User = await this.userService.getUserById(sub);
 
-      if (!user) throw new NotFoundException(appError.USER_NOT_FOUND);
+      if (!user) {
+        throw new NotFoundException(appError.USER_NOT_FOUND);
+      }
 
       return user;
     } catch (error) {
-      return error.message;
+      throw new UnauthorizedException(error.message);
     }
   }
 }

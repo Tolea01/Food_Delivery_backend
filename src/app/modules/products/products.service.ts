@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
@@ -50,7 +50,7 @@ export class ProductsService {
         },
       );
     } catch (error) {
-      return error.message;
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -86,7 +86,7 @@ export class ProductsService {
 
       return await queryBuilder.getMany();
     } catch (error) {
-      return error.message;
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -96,7 +96,7 @@ export class ProductsService {
         where: { id, deleted_at: IsNull() },
       });
     } catch (error) {
-      return error.message;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -106,7 +106,7 @@ export class ProductsService {
         where: { id },
       });
     } catch (error) {
-      return error.message;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -121,7 +121,7 @@ export class ProductsService {
         },
       });
     } catch (error) {
-      return error.message;
+      throw new NotFoundException(error.message);
     }
   }
 
@@ -144,7 +144,11 @@ export class ProductsService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 
@@ -161,7 +165,11 @@ export class ProductsService {
         },
       );
     } catch (error) {
-      return error.message;
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new BadRequestException(error.message);
+      }
     }
   }
 
