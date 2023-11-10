@@ -40,13 +40,24 @@ export class CustomerController {
   @QueryApiOperation('address')
   @QueryApiOperation('phone')
   @QueryApiOperation('email')
+  @QueryApiOperation('orderBy')
+  @QueryApiOperation('sortOrder')
   async findAll(
     @Query('name') name: string,
     @Query('address') address: string,
     @Query('phone') phone: string,
     @Query('email') email: string,
+    @Query('orderBy') orderBy: string,
+    @Query('sortOrder') sortOrder: 'ASC' | 'DESC',
   ): Promise<Customer[]> {
-    return await this.customerService.findAll(name, address, phone, email);
+    return await this.customerService.findAll(
+      name,
+      address,
+      phone,
+      email,
+      orderBy,
+      sortOrder,
+    );
   }
 
   @Get(':id')

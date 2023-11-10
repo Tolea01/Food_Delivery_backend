@@ -8,7 +8,6 @@ import appError from '@config/appError';
 import { LocationService } from '@location/location.service';
 import { Location } from '@location/entities/location.entity';
 import { User } from '@user/entities/user.entity';
-import * as trace_events from 'trace_events';
 
 @Injectable()
 export class CustomerService {
@@ -59,15 +58,22 @@ export class CustomerService {
     address?: string,
     phone?: string,
     email?: string,
+    orderBy?: string,
+    sortOrder?: 'ASC' | 'DESC',
   ): Promise<Customer[]> {
     try {
       const queryBuilder: SelectQueryBuilder<Customer> =
         await this.customerRepository.createQueryBuilder('customer');
+
       queryBuilder
         .where(name ? 'customer.name = :name' : '1=1', { name })
         .andWhere(address ? 'customer.address = :address' : '1=1', { address })
         .andWhere(phone ? 'customer.phone = :phone' : '1=1', { phone })
-        .andWhere(email ? 'customer.email = :email' : '1=1', { email });
+        .andWhere(email ? 'customer.email = :email' : '1=1', { email })
+        .orderBy(
+          sortOrder && orderBy ? `customer.${orderBy}` : '1=1',
+          sortOrder || 'ASC',
+        );
 
       return await queryBuilder.getMany();
     } catch (error) {
