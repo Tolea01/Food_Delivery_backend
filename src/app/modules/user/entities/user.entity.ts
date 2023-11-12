@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, Unique, OneToMany } from 'typeo
 import { UserRole } from './user-role.enum';
 import { createUniqueColumnOptions } from 'src/app/helpers/column-helpers';
 import { Product } from '@products/entities/product.entity';
+import { Order } from '@app/modules/orders/entities/order.entity';
 
 @Entity()
 @Unique(['username'])
@@ -26,4 +27,16 @@ export class User {
 
   @OneToMany(() => Product, (product: Product) => product.deleted_by)
   deletedProducts: Product[];
+
+  @OneToMany(() => Order, (order: Order) => order.created_by)
+  createdOrders: Order[];
+
+  @OneToMany(() => Order, (order: Order) => order.updated_by)
+  updatedOrders: Order[];
+
+  @OneToMany(() => Order, (order: Order) => order.deleted_by)
+  deletedOrders: Order[];
+
+  @OneToMany(() => Order, (order: Order) => order.courier_id)
+  couriers: Order[];
 }

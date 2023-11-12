@@ -7,5 +7,8 @@
   "MAX": "{property} with value: \"{value}\" needs to be less than {constraints.0}",
   "INVALID_DECIMAL": "{property} must be a valid decimal number",
   "INVALID_DATE_STRING": "{property} must be a valid date string",
-  "INVALID_PROPERTY": "{property} is not valid"
+  "INVALID_PROPERTY": "{property} is not valid",
+  "INVALID_STATUS": "invalid order status",
+  "INVALID_DELIVERY_METHOD": "invalid delivery method",
+  "INVALID_PAYMENT_METHOD": "invalid payment method"
 }

@@ -7,6 +7,7 @@ import { UserModule } from '@user/user.module';
 import { ProductCategoriesModule } from '@product-categories/product-categories.module';
 import { ProductsModule } from '@products/products.module';
 import { CustomerModule } from './customer/customer.module';
+import { OrdersModule } from './orders/orders.module';
 
 export default [
   AuthModule,
@@ -18,4 +19,5 @@ export default [
   ProductCategoriesModule,
   ProductsModule,
   CustomerModule,
+  OrdersModule,
 ];

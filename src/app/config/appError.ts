@@ -7,6 +7,7 @@ const appError = {
   PRODUCT_CATEGORY_NOT_FOUND: 'Product category not found!',
   PRODUCT_NOT_FOUND: 'Product not found!',
   USER_EXIST: 'This user already exists',
+  ORDER_EXIST: 'This order already exists',
   PRODUCT_CATEGORY_EXIST: 'This product category already exists',
   COUNTRY_EXIST: 'This country already exists',
   PRODUCT_EXIST: 'This country already exists',

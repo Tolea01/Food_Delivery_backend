@@ -1,7 +1,15 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { createUniqueColumnOptions } from '@app/helpers/column-helpers';
 import { Location } from '@app/modules/geo/location/entities/location.entity';
 import { User } from '@app/modules/user/entities/user.entity';
+import { Order } from '@app/modules/orders/entities/order.entity';
 
 @Entity()
 export class Customer {
@@ -27,4 +35,7 @@ export class Customer {
   @ManyToOne(() => User, (user: User) => user.id, { nullable: true })
   @JoinColumn({ name: 'user_id' })
   user_id: User;
+
+  @OneToMany(() => Order, (order: Order) => order.customer_id)
+  orders: Order[];
 }
