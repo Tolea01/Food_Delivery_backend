@@ -1,13 +1,18 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Region } from './entities/region.entity';
 import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateRegionDto } from './dto/create-region.dto';
 import { CountryService } from '@country/country.service';
-import { Country } from '@country/entities/country.entity';
 import { UpdateRegionDto } from './dto/update-region.dto';
 import { GeoQueryResult } from '@app/interfaces/interfaces';
 import appError from '@config/appError';
+import handleExceptionError from '@app/helpers/handle-exception-error';
 
 @Injectable()
 export class RegionService {
@@ -21,31 +26,20 @@ export class RegionService {
     try {
       return await this.entityManager.transaction(
         async (transactionalEntityManager: EntityManager): Promise<Region> => {
-          const existRegion: Region | undefined =
-            await transactionalEntityManager.findOne(Region, {
-              where: {
-                ...createRegionData,
-                country_id: { id: createRegionData.country_id },
-              },
-            });
+          const existRegion: Region | undefined = await this.regionRepository.findOne({
+            where: createRegionData,
+          });
 
           if (existRegion) {
             throw new BadRequestException(appError.REGION_EXIST);
           } else {
-            const country: Country = await this.countryService.getCountryById(
-              createRegionData.country_id,
-            );
-            const region: Region = this.entityManager.create(Region, {
-              ...createRegionData,
-              country_id: country,
-            });
-
-            return await transactionalEntityManager.save(Region, region);
+            await this.countryService.getCountryById(createRegionData.country_id);
+            return await transactionalEntityManager.save(Region, createRegionData);
           }
         },
       );
     } catch (error) {
-      throw new BadRequestException(error.message);
+      handleExceptionError(error);
     }
   }
 
@@ -95,7 +89,7 @@ export class RegionService {
 
       return await this.regionRepository.find({
         where: {
-          country_id: { id: countryId },
+          country_id: countryId,
         },
       });
     } catch (error) {
@@ -111,17 +105,17 @@ export class RegionService {
       return await this.entityManager.transaction(
         async (transactionalEntityManager: EntityManager): Promise<Partial<Region>> => {
           await this.getRegionById(id);
-          await transactionalEntityManager.update(Region, id, updateRegionData);
 
+          if (updateRegionData.country_id) {
+            await this.countryService.getCountryById(updateRegionData.country_id);
+          }
+
+          await transactionalEntityManager.update(Region, id, updateRegionData);
           return updateRegionData;
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      handleExceptionError(error);
     }
   }
 
@@ -133,11 +127,7 @@ export class RegionService {
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

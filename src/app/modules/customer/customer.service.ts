@@ -11,8 +11,8 @@ import { Customer } from './entities/customer.entity';
 import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
 import appError from '@config/appError';
 import { LocationService } from '@location/location.service';
-import { Location } from '@location/entities/location.entity';
 import { User } from '@user/entities/user.entity';
+import handleExceptionError from '@app/helpers/handle-exception-error';
 
 @Injectable()
 export class CustomerService {
@@ -31,30 +31,20 @@ export class CustomerService {
         async (transactionalEntityManager: EntityManager): Promise<Customer> => {
           const existCustomer: Customer | undefined =
             await this.customerRepository.findOne({
-              where: {
-                ...createCustomerDto,
-                location_id: { id: createCustomerDto.location_id },
-              },
+              where: createCustomerDto,
             });
 
           if (existCustomer) {
             throw new BadRequestException(appError.CUSTOMER_EXIST);
           } else {
-            const location: Location | undefined =
-              await this.locationService.getLocationById(createCustomerDto.location_id);
-
-            const customer: Customer = this.entityManager.create(Customer, {
-              ...createCustomerDto,
-              location_id: location,
-              user_id: { id: user.id },
-            });
-
-            return await transactionalEntityManager.save(Customer, customer);
+            await this.locationService.getLocationById(createCustomerDto.location_id);
+            createCustomerDto.user_id = user.id;
+            return await transactionalEntityManager.save(Customer, createCustomerDto);
           }
         },
       );
     } catch (error) {
-      throw new BadRequestException(error.message);
+      handleExceptionError(error);
     }
   }
 
@@ -103,16 +93,18 @@ export class CustomerService {
     try {
       return await this.entityManager.transaction(
         async (transactionalEntityManager: EntityManager): Promise<Partial<Customer>> => {
+          await this.findOne(id);
+
+          if (updateCustomerDto.location_id) {
+            await this.locationService.getLocationById(updateCustomerDto.location_id);
+          }
+
           await transactionalEntityManager.update(Customer, id, updateCustomerDto);
           return updateCustomerDto;
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error.message;
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      handleExceptionError(error);
     }
   }
 
@@ -124,11 +116,7 @@ export class CustomerService {
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error.message;
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

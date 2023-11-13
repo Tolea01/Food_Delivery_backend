@@ -27,6 +27,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
+  // todo swagger documentation
   @LanguageHeader()
   @ApiOperation({ summary: 'User registration' })
   async create(@Body() createUser: CreateUserDto): Promise<User> {
@@ -39,9 +40,10 @@ export class UserController {
   @QueryApiOperation('page')
   @QueryApiOperation('sortOrder')
   @QueryApiOperation('sortColumn')
+  // todo response swagger documentation
   async getAll(
     @Query(
-      'itemsPerPage',
+      'itemsPerPage',//todo rename
       new DefaultValuePipe(paginationConfig.itemsPerPage),
       ParseIntPipe,
     )

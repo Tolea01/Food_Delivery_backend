@@ -46,7 +46,7 @@ export class OrdersController {
   @QueryApiOperation('sortBy')
   @QueryApiOperation('orderBy')
   async findAll(
-    @Query('sortBy') sortBy: string,
+    @Query('sortBy') sortBy: string, //todo try to create DTO for query params with optional values
     @Query('orderBy', new DefaultValuePipe(paginationConfig.sortOrder))
     orderBy: 'ASC' | 'DESC',
     @Query('number') number: string,

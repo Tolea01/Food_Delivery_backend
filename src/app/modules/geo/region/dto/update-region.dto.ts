@@ -1,11 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString, Length } from 'class-validator';
-import { Region } from '../entities/region.entity';
 import { i18nValidationMessage } from 'nestjs-i18n';
 import { Country } from '@country/entities/country.entity';
+import { CreateRegionDto } from './create-region.dto';
 
-export class UpdateRegionDto extends PartialType(Region) {
+export class UpdateRegionDto extends PartialType(CreateRegionDto) {
   @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @Length(3, 100, { message: i18nValidationMessage('validation.MIN_MAX') })
@@ -31,5 +31,5 @@ export class UpdateRegionDto extends PartialType(Region) {
   @IsNumber({}, { message: i18nValidationMessage('validation.INVALID_NUMBER') })
   @IsOptional()
   @ApiProperty({ required: false, example: 'new country id' })
-  country_id?: Country;
+  country_id?: number;
 }

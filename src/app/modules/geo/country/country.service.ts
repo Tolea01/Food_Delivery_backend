@@ -11,6 +11,7 @@ import { CreateCountryDto } from './dto/create-country.dto';
 import { UpdateCountryDto } from './dto/update-country.dto';
 import { GeoQueryResult } from '@app/interfaces/interfaces';
 import appError from '@config/appError';
+import handleExceptionError from '@app/helpers/handle-exception-error';
 
 @Injectable()
 export class CountryService {
@@ -38,7 +39,7 @@ export class CountryService {
         },
       );
     } catch (error) {
-      throw new BadRequestException(error.message);
+      handleExceptionError(error);
     }
   }
 
@@ -91,16 +92,11 @@ export class CountryService {
         async (transactionalEntityManager: EntityManager): Promise<Partial<Country>> => {
           await this.getCountryById(id);
           await transactionalEntityManager.update(Country, id, updateCountry);
-
           return updateCountry;
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      handleExceptionError(error);
     }
   }
 
@@ -112,11 +108,7 @@ export class CountryService {
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

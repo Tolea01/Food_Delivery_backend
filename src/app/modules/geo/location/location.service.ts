@@ -9,10 +9,10 @@ import { Location } from './entities/location.entity';
 import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { RegionService } from '@region/region.service';
-import { Region } from '@region/entities/region.entity';
 import appError from '@config/appError';
 import { GeoQueryResult } from '@app/interfaces/interfaces';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import handleExceptionError from '@app/helpers/handle-exception-error';
 
 @Injectable()
 export class LocationService {
@@ -22,35 +22,23 @@ export class LocationService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  async create(createLocationData: CreateLocationDto): Promise<Location | undefined> {
+  async create(createLocationData: CreateLocationDto): Promise<Location> {
     try {
       return await this.entityManager.transaction(
         async (transactionalEntityManager: EntityManager): Promise<Location> => {
           const existLocation: Location | undefined =
-            await transactionalEntityManager.findOne(Location, {
-              where: {
-                ...createLocationData,
-                region_id: { id: createLocationData.region_id },
-              },
-            });
+            await this.locationRepository.findOne({ where: createLocationData });
 
           if (existLocation) {
             throw new BadRequestException(appError.LOCATION_EXIST);
           } else {
-            const region: Region | undefined = await this.regionService.getRegionById(
-              createLocationData.region_id,
-            );
-            const location: Location = this.entityManager.create(Location, {
-              ...createLocationData,
-              region_id: region,
-            });
-
-            return await transactionalEntityManager.save(Location, location);
+            await this.regionService.getRegionById(createLocationData.region_id);
+            return await transactionalEntityManager.save(Location, createLocationData);
           }
         },
       );
     } catch (error) {
-      throw new BadRequestException(error.message);
+      handleExceptionError(error);
     }
   }
 
@@ -100,7 +88,7 @@ export class LocationService {
 
       return await this.locationRepository.find({
         where: {
-          region_id: { id: regionId },
+          region_id: regionId,
         },
       });
     } catch (error) {
@@ -116,17 +104,17 @@ export class LocationService {
       return await this.entityManager.transaction(
         async (transactionalEntityManager: EntityManager): Promise<Partial<Location>> => {
           await this.getLocationById(id);
-          await transactionalEntityManager.update(Location, id, updateLocationData);
 
+          if (updateLocationData.region_id) {
+            await this.regionService.getRegionById(updateLocationData.region_id);
+          }
+
+          await transactionalEntityManager.update(Location, id, updateLocationData);
           return updateLocationData;
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      handleExceptionError(error);
     }
   }
 
@@ -138,11 +126,7 @@ export class LocationService {
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

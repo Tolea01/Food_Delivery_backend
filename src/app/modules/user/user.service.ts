@@ -20,14 +20,14 @@ export class UserService {
     private readonly entityManager: EntityManager,
   ) {}
 
-  private userProps(user: User): User {
+  private userProps(user: User): User {//todo use DTO
     return {
       ...user,
       password: undefined,
     };
   }
 
-  async create(userData: CreateUserDto): Promise<User> {
+  async create(userData: CreateUserDto): Promise<User> {//todo UserCreatePayloadDTO and UserCreateResponseDTO
     try {
       return await this.entityManager.transaction(
         async (transactionalEntityManager: EntityManager): Promise<User> => {
@@ -75,16 +75,17 @@ export class UserService {
           [sortColumn]: sortOrder,
         },
       });
+      //todo refactor paginate https://github.com/sergiuchilat/nest-project-template/blob/main/src/app/modules/geo/country/country.service.ts
 
       await this.userRepository.count();
 
-      return items.map((item: User) => this.userProps(item));
+      return items.map((item: User) => this.userProps(item));//todo refactor
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      throw new InternalServerErrorException(error.message)
     }
   }
 
-  async getUserById(id: number): Promise<User | undefined> {
+  async getUserById(id: number): Promise<User | undefined> {//todo response dto
     try {
       return await this.userRepository.findOneOrFail({ where: { id } });
     } catch (error) {
@@ -92,7 +93,7 @@ export class UserService {
     }
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
+  async getUserByUsername(username: string): Promise<User | undefined> {//todo response dto
     try {
       return await this.userRepository.findOneOrFail({
         where: { username },
@@ -131,7 +132,7 @@ export class UserService {
 
   async removeUser(id: number): Promise<void> {
     try {
-      return await this.entityManager.transaction(
+      return await this.entityManager.transaction(// todo use transactions if you have 2 or mode insert, update, delete
         async (transactionalEntityManager: EntityManager): Promise<void> => {
           await transactionalEntityManager.delete(User, id);
         },

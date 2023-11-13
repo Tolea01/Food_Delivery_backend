@@ -10,6 +10,7 @@ import { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import appError from '@config/appError';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import handleExceptionError from '@app/helpers/handle-exception-error';
 
 @Injectable()
 export class OrderCoCustomerService {
@@ -24,7 +25,7 @@ export class OrderCoCustomerService {
       return await this.entityManager.transaction(
         async (transactionalEntityManager: EntityManager): Promise<OrderCoCustomer> => {
           const existCustomer: OrderCoCustomer | undefined =
-            await transactionalEntityManager.findOne(OrderCoCustomer, {
+            await this.orderCoCustomerRepository.findOne({
               where: createCustomerDto,
             });
 
@@ -39,7 +40,7 @@ export class OrderCoCustomerService {
         },
       );
     } catch (error) {
-      throw new BadRequestException(error.message);
+      handleExceptionError(error);
     }
   }
 
@@ -75,16 +76,11 @@ export class OrderCoCustomerService {
         ): Promise<Partial<OrderCoCustomer>> => {
           await this.getCustomerById(id);
           await transactionalEntityManager.update(OrderCoCustomer, id, updateCustomerDto);
-
           return updateCustomerDto;
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      handleExceptionError(error);
     }
   }
 
@@ -96,11 +92,7 @@ export class OrderCoCustomerService {
         },
       );
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

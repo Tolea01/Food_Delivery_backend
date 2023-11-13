@@ -32,4 +32,6 @@ export class CreateCustomerDto {
   @IsNumber({}, { message: i18nValidationMessage('validation.INVALID_NUMBER') })
   @ApiProperty({ example: 'customer location id' })
   location_id: number;
+
+  user_id: number;
 }

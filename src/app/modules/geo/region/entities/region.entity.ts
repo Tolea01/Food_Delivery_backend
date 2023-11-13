@@ -26,7 +26,7 @@ export class Region {
 
   @ManyToOne(() => Country, (country: Country) => country.id)
   @JoinColumn({ name: 'country_id' })
-  country_id: Country;
+  country_id: number;
 
   @OneToMany(() => Location, (location: Location) => location.region_id)
   locations: Location[];

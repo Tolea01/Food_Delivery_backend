@@ -19,7 +19,7 @@ export class Order {
   })
   created_at: Date;
 
-  @ManyToOne(() => User, (user: User) => user.createdOrders)
+  @ManyToOne(() => User, (user: User) => user.id)
   @JoinColumn({ name: 'created_by' })
   created_by: number;
 
@@ -29,7 +29,7 @@ export class Order {
   })
   updated_at: Date;
 
-  @ManyToOne(() => User, (user: User) => user.updatedOrders)
+  @ManyToOne(() => User, (user: User) => user.id)
   @JoinColumn({ name: 'updated_by' })
   updated_by: number;
 
@@ -39,7 +39,7 @@ export class Order {
   })
   deleted_at: Date;
 
-  @ManyToOne(() => User, (user: User) => user.deletedOrders)
+  @ManyToOne(() => User, (user: User) => user.id)
   @JoinColumn({ name: 'deleted_by' })
   deleted_by: number;
 
@@ -53,11 +53,11 @@ export class Order {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   total_products_price: number;
 
-  @ManyToOne(() => Customer, (customer: Customer) => customer.orders)
+  @ManyToOne(() => Customer, (customer: Customer) => customer.id)
   @JoinColumn({ name: 'customer_id' })
   customer_id: number;
 
-  @ManyToOne(() => User, (courier: User) => courier.couriers)
+  @ManyToOne(() => User, (courier: User) => courier.id)
   @JoinColumn({ name: 'courier_id' })
   courier_id: number;
 
@@ -92,7 +92,7 @@ export class Order {
     enum: PaymentMethod,
     default: PaymentMethod.CourierCash,
   })
-  payment_method: string;
+  payment_method: string;//todo type PaymentMethod
 
   @Column({ type: 'varchar', length: 250 })
   comments: string;

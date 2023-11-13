@@ -1,5 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { Customer } from '../entities/customer.entity';
 import {
   IsEmail,
   IsNotEmpty,
@@ -11,8 +10,9 @@ import {
 import { i18nValidationMessage } from 'nestjs-i18n';
 import { ApiProperty } from '@nestjs/swagger';
 import { Location } from '@app/modules/geo/location/entities/location.entity';
+import { CreateCustomerDto } from '@app/modules/order-co-customer/dto/create-customer.dto';
 
-export class UpdateCustomerDto extends PartialType(Customer) {
+export class UpdateCustomerDto extends PartialType(CreateCustomerDto) {
   @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
   @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
   @Length(3, 50, { message: i18nValidationMessage('validation.MIN_MAX') })
@@ -46,5 +46,5 @@ export class UpdateCustomerDto extends PartialType(Customer) {
   @IsNumber({}, { message: i18nValidationMessage('validation.INVALID_NUMBER') })
   @ApiProperty({ example: 'customer location id' })
   @IsOptional()
-  location_id?: Location;
+  location_id?: number;
 }

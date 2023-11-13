@@ -30,11 +30,11 @@ export class Customer {
 
   @ManyToOne(() => Location, (location: Location) => location.id, { nullable: false })
   @JoinColumn({ name: 'location_id' })
-  location_id: Location;
+  location_id: number;
 
   @ManyToOne(() => User, (user: User) => user.id, { nullable: true })
   @JoinColumn({ name: 'user_id' })
-  user_id: User;
+  user_id: number;
 
   @OneToMany(() => Order, (order: Order) => order.customer_id)
   orders: Order[];

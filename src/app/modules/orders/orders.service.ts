@@ -26,7 +26,7 @@ export class OrdersService {
             where: createOrderDto,
           });
 
-          if (existOrder) {
+          if (existOrder) {//todo here you don't need check unique
             throw new BadRequestException(appError.ORDER_EXIST);
           } else {
             createOrderDto.created_by = user.id;
@@ -60,7 +60,7 @@ export class OrdersService {
 
       queryBuilder
         .orderBy(sortBy ? `order.${sortBy}` : '1=1', orderBy)
-        .andWhere(number ? 'order.number = :number' : '1=1', { number })
+        .andWhere(number ? 'order.number = :number' : '1=1', { number }) //try to add dynamic andWhere
         .andWhere(status ? 'order.status = :status' : '1=1', { status })
         .andWhere(deliveryMethod ? 'order.delivery_method = :deliveryMethod' : '1=1', {
           deliveryMethod,
@@ -86,7 +86,8 @@ export class OrdersService {
         .andWhere(joinCode ? 'order.join_code = :joinCode' : '1=1', {
           joinCode,
         })
-        .andWhere('(product.deleted_by IS NULL AND product.deleted_at IS NULL)')
+        .andWhere('(product.deleted_by IS NULL AND product.deleted_at IS NULL)')//todo .withDeleted()
+
         .skip((page - 1) * pageSize)
         .take(pageSize);
 
@@ -155,7 +156,7 @@ export class OrdersService {
     }
   }
 
-  async removeDeleteValues(id: number): Promise<void> {
+  async removeDeleteValues(id: number): Promise<void> {//todo rename method to restore
     try {
       return await this.entityManager.transaction(
         async (transaction: EntityManager): Promise<void> => {
@@ -172,7 +173,7 @@ export class OrdersService {
     }
   }
 
-  async deletedBy(id: number, user: any): Promise<void> {
+  async deletedBy(id: number, user: any): Promise<void> {//todo rename to softDelete
     try {
       return await this.entityManager.transaction(
         async (transaction: EntityManager): Promise<void> => {
