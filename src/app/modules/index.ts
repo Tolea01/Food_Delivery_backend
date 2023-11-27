@@ -4,10 +4,10 @@ import { LocationModule } from '@location/location.module';
 import { OrderCoCustomerModule } from '@order-co-customer/order-co-customer.module';
 import { RegionModule } from '@region/region.module';
 import { UserModule } from '@user/user.module';
-import { ProductCategoriesModule } from '@product-categories/product-categories.module';
-import { ProductsModule } from '@products/products.module';
+import { ProductCategoryModule } from '@product-category/product-category.module';
+import { ProductModule } from '@product/product.module';
 import { CustomerModule } from './customer/customer.module';
-import { OrdersModule } from './orders/orders.module';
+import { OrderModule } from './order/order.module';
 
 export default [
   AuthModule,
@@ -16,8 +16,8 @@ export default [
   OrderCoCustomerModule,
   RegionModule,
   UserModule,
-  ProductCategoriesModule,
-  ProductsModule,
+  ProductCategoryModule,
+  ProductModule,
   CustomerModule,
-  OrdersModule,
+  OrderModule,
 ];

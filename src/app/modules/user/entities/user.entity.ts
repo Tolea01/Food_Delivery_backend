@@ -1,14 +1,8 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Unique,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique, OneToMany } from 'typeorm';
 import { UserRole } from './user-role.enum';
-import { createUniqueColumnOptions } from 'src/app/helpers/column-helpers';
-import { Product } from '@products/entities/product.entity';
-import { Order } from '@app/modules/orders/entities/order.entity';
+import { UniqueColumn } from 'src/app/helpers/column-helpers';
+import { Product } from '@product/entities/product.entity';
+import { Order } from '@app/modules/order/entities/order.entity';
 import { Customer } from '@app/modules/customer/entities/customer.entity';
 
 @Entity()
@@ -17,13 +11,13 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column(createUniqueColumnOptions(50)) // todo decoractor name. See Nest custom decorators documentation
+  @UniqueColumn(50)
   username: string;
 
-  @Column(createUniqueColumnOptions())
+  @UniqueColumn()
   password: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.Admin })//todo default admin?
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.Customer })
   role: UserRole;
 
   @OneToMany(() => Product, (product: Product) => product.created_by)
@@ -48,5 +42,5 @@ export class User {
   deletedOrders: Order[];
 
   @OneToMany(() => Order, (order: Order) => order.courier_id)
-  couriers: Order[];//todo ?
+  couriers: Order[]; //todo ?
 }

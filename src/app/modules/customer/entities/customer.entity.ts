@@ -6,26 +6,26 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { createUniqueColumnOptions } from '@app/helpers/column-helpers';
+import { UniqueColumn } from '@app/helpers/column-helpers';
 import { Location } from '@app/modules/geo/location/entities/location.entity';
 import { User } from '@app/modules/user/entities/user.entity';
-import { Order } from '@app/modules/orders/entities/order.entity';
+import { Order } from '@app/modules/order/entities/order.entity';
 
 @Entity()
 export class Customer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column(createUniqueColumnOptions(100))
+  @UniqueColumn(100)
   name: string;
 
-  @Column(createUniqueColumnOptions(250))
+  @UniqueColumn(250)
   address: string;
 
-  @Column(createUniqueColumnOptions(12))
+  @UniqueColumn(12)
   phone: string;
 
-  @Column(createUniqueColumnOptions(100))
+  @UniqueColumn(100)
   email: string;
 
   @ManyToOne(() => Location, (location: Location) => location.id, { nullable: false })

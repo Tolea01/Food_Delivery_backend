@@ -9,6 +9,13 @@ interface UserData {
   role: string;
 }
 
+interface PaginatorConfig {
+  page: number;
+  limit: number;
+  sortOrder: string;
+  sortColumn: string;
+}
+
 interface ProductCategoryQueryResult extends GeoQueryResult {}
 
-export { GeoQueryResult, UserData, ProductCategoryQueryResult };
+export { GeoQueryResult, UserData, ProductCategoryQueryResult, PaginatorConfig };

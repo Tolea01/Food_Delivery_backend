@@ -1,6 +1,8 @@
-const paginationConfig = {
+import { PaginatorConfig } from '@app/interfaces/interfaces';
+
+const paginationConfig: PaginatorConfig = {
   page: 1,
-  itemsPerPage: 10,
+  limit: 10,
   sortOrder: 'ASC',
   sortColumn: 'id',
 };

@@ -1,11 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { createUniqueColumnOptions } from 'src/app/helpers/column-helpers';
+import { Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { UniqueColumn } from 'src/app/helpers/column-helpers';
 
 @Entity()
 export class OrderCoCustomer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column(createUniqueColumnOptions(100))
+  @UniqueColumn(100)
   name: string;
 }

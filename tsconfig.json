@@ -20,6 +20,7 @@
     "paths": {
       "@app/*": ["src/app/*"],
       "@config/*": ["src/app/config/*"],
+      "@database/*": ["src/app/database/*"],
       "@docs/*": ["src/app/docs/*"],
       "@helpers/*": ["src/app/helpers/*"],
       "@middleware/*": ["src/app/middleware/*"],
@@ -30,8 +31,8 @@
       "@order-co-customer/*": ["src/app/modules/order-co-customer/*"],
       "@region/*": ["src/app/modules/geo/region/*"],
       "@user/*": ["src/app/modules/user/*"],
-      "@product-categories/*": ["src/app/modules/product-categories/*"],
-      "@products/*": ["src/app/modules/products/*"],
+      "@product-category/*": ["src/app/modules/product-category/*"],
+      "@product/*": ["src/app/modules/product/*"],
     }
   }
 }

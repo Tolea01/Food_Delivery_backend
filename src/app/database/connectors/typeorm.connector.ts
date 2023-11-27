@@ -6,7 +6,7 @@ export const databaseConfig = (): any => ({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   synchronize: true,
-  entities: [__dirname + '/../config/../**/*.entity{.js, .ts}'],
+  entities: [__dirname + '/**/*.entity{.js, .ts}'],
 });
 
 export default databaseConfig;

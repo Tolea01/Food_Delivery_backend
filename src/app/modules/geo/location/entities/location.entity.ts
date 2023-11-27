@@ -1,12 +1,11 @@
 import {
-  Column,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { createUniqueColumnOptions } from 'src/app/helpers/column-helpers';
+import { UniqueColumn } from 'src/app/helpers/column-helpers';
 import { Region } from '@region/entities/region.entity';
 import { Customer } from '@app/modules/customer/entities/customer.entity';
 
@@ -15,13 +14,13 @@ export class Location {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column(createUniqueColumnOptions(100))
+  @UniqueColumn(100)
   name_en: string;
 
-  @Column(createUniqueColumnOptions(100))
+  @UniqueColumn(100)
   name_ro: string;
 
-  @Column(createUniqueColumnOptions(100))
+  @UniqueColumn(100)
   name_ru: string;
 
   @ManyToOne(() => Region, (region: Region) => region.id)

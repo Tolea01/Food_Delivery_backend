@@ -1,9 +1,12 @@
-import { ColumnOptions } from 'typeorm';
+import { Column, ColumnOptions } from 'typeorm';
+import { applyDecorators } from '@nestjs/common';
 
-export function createUniqueColumnOptions(length?: number): ColumnOptions {
-  return {
-    nullable: false,
-    unique: true,
-    length,
-  };
+export function UniqueColumn(length?: number) {
+  return applyDecorators(
+    Column({
+      nullable: false,
+      unique: true,
+      length,
+    }),
+  );
 }

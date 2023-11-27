@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -7,85 +8,91 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository, EntityManager } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import * as argon2 from 'argon2';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { paginationConfig } from 'src/app/config';
 import appError from 'src/app/config/appError';
+import { UserItemDto } from '@user/dto/user.item.dto';
+import { plainToClass } from 'class-transformer';
+import handleExceptionError from '@helpers/handle-exception-error';
+import { SortOrder } from '@database/validators/typeorm.sort.validator';
+import { UserSort } from '@user/validators/user.sort.validator';
+import UserFiltersBuilder from '@user/builders/user.filters.builder';
+import { paginate } from 'nestjs-typeorm-paginate';
+import { UserRole } from '@user/entities/user-role.enum';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    private readonly entityManager: EntityManager,
   ) {}
 
-  private userProps(user: User): User {//todo use DTO
+  private userProps(user: User): User {
+    //todo use DTO
     return {
       ...user,
       password: undefined,
     };
   }
 
-  async create(userData: CreateUserDto): Promise<User> {//todo UserCreatePayloadDTO and UserCreateResponseDTO
+  async create(userData: CreateUserDto): Promise<UserItemDto> {
+    //todo UserCreatePayloadDTO and UserCreateResponseDTO
     try {
-      return await this.entityManager.transaction(
-        async (transactionalEntityManager: EntityManager): Promise<User> => {
-          const existUser: User | undefined = await transactionalEntityManager.findOne(
-            User,
-            {
-              where: { username: userData.username },
-            },
-          );
-
-          if (existUser) throw new BadRequestException(appError.USER_EXIST);
-
-          const user: User = await transactionalEntityManager.save(User, {
-            ...userData,
-            password: await argon2.hash(userData.password),
-          });
-
-          return this.userProps(user);
-        },
-      );
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async getAllUsers(pagination: {
-    itemsPerPage: number;
-    page: number;
-    sortColumn: string;
-    sortOrder: string;
-  }): Promise<Partial<User[]>> {
-    try {
-      const { itemsPerPage, page, sortColumn, sortOrder } = {
-        ...paginationConfig,
-        ...pagination,
-      };
-
-      const take: number = itemsPerPage;
-      const skip: number = (page - 1) * itemsPerPage;
-
-      const items: User[] = await this.userRepository.find({
-        take,
-        skip,
-        order: {
-          [sortColumn]: sortOrder,
-        },
+      const existUser: User | undefined = await this.userRepository.findOne({
+        where: { username: userData.username },
       });
-      //todo refactor paginate https://github.com/sergiuchilat/nest-project-template/blob/main/src/app/modules/geo/country/country.service.ts
 
-      await this.userRepository.count();
+      if (existUser) {
+        throw new ConflictException(appError.USER_EXIST);
+      }
 
-      return items.map((item: User) => this.userProps(item));//todo refactor
+      const user: CreateUserDto = await this.userRepository.save({
+        ...userData,
+        password: await argon2.hash(userData.password),
+      });
+
+      return plainToClass(UserItemDto, user);
     } catch (error) {
-      throw new InternalServerErrorException(error.message)
+      handleExceptionError(error);
     }
   }
 
-  async getUserById(id: number): Promise<User | undefined> {//todo response dto
+  async getAllUsers(
+    limit?: number,
+    page?: number,
+    sortOrder?: SortOrder,
+    sortColumn?: UserSort,
+    username?: string,
+    role?: UserRole,
+    // filter?: any,
+  ): Promise<any> {
+    try {
+      // const filtersBuilder: UserFiltersBuilder = new UserFiltersBuilder(filter);
+      // const queryBuilder: SelectQueryBuilder<User> = this.userRepository
+      //   .createQueryBuilder('users')
+      //   .where(filtersBuilder.get())
+      //   .orderBy(sortColumn, sortOrder)
+      //   .skip(page * limit)
+      //   .take(limit);
+      //
+      // return await paginate<User>(queryBuilder, { limit, page });
+
+      const queryBuilder: SelectQueryBuilder<User> = this.userRepository
+        .createQueryBuilder('user')
+        .where(username ? 'user.username = :username' : '1=1', { username })
+        .andWhere(role ? 'user.role = :role' : '1=1', { role })
+        .orderBy(sortColumn, sortOrder)
+        .skip((page - 1) * limit)
+        .take(limit);
+      // return plainToClass(UserItemDto, await queryBuilder.getMany());
+      return await queryBuilder.getMany();
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
+    //todo response dto
     try {
       return await this.userRepository.findOneOrFail({ where: { id } });
     } catch (error) {
@@ -93,11 +100,10 @@ export class UserService {
     }
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {//todo response dto
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    //todo response dto
     try {
-      return await this.userRepository.findOneOrFail({
-        where: { username },
-      });
+      return await this.userRepository.findOneOrFail({ where: { username } });
     } catch (error) {
       throw new NotFoundException(error.message);
     }
@@ -105,22 +111,18 @@ export class UserService {
 
   async updateUser(id: number, updateUser: UpdateUserDto): Promise<Partial<User>> {
     try {
-      return await this.entityManager.transaction(
-        async (transactionalEntityManager: EntityManager): Promise<Partial<User>> => {
-          await this.getUserById(id);
+      const existingUser = await this.getUserById(id);
 
-          if (updateUser.password) {
-            updateUser.password = await argon2.hash(updateUser.password);
-          }
+      if (updateUser.password) {
+        updateUser.password = await argon2.hash(updateUser.password);
+      }
 
-          await transactionalEntityManager.update(User, id, updateUser);
+      await this.userRepository.update(id, updateUser);
 
-          return {
-            ...updateUser,
-            password: updateUser.password ? 'Password updated successfully' : undefined,
-          };
-        },
-      );
+      return {
+        ...updateUser,
+        password: updateUser.password ? 'Password updated successfully' : undefined,
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
@@ -132,11 +134,11 @@ export class UserService {
 
   async removeUser(id: number): Promise<void> {
     try {
-      return await this.entityManager.transaction(// todo use transactions if you have 2 or mode insert, update, delete
-        async (transactionalEntityManager: EntityManager): Promise<void> => {
-          await transactionalEntityManager.delete(User, id);
-        },
-      );
+      const deleteResult = await this.userRepository.delete(id);
+
+      if (deleteResult.affected === 0) {
+        throw new NotFoundException(`User with ID ${id} not found.`);
+      }
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
