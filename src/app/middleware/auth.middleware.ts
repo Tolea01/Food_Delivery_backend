@@ -3,6 +3,7 @@ import { AuthService } from '@auth/auth.service';
 import { NextFunction } from 'express';
 import appError from '../config/appError';
 import { User } from '@user/entities/user.entity';
+import { UserItemDto } from '@user/dto/user.item.dto';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -12,7 +13,7 @@ export class AuthMiddleware implements NestMiddleware {
     const authHeaders = req.headers.authorization;
 
     if (authHeaders) {
-      const user: User = await this.authService.getUserByToken(authHeaders);
+      const user: UserItemDto = await this.authService.getUserByToken(authHeaders);
 
       if (!user) {
         throw new HttpException(appError.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);

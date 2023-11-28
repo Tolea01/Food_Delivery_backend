@@ -16,9 +16,9 @@ export class CreateUserDto {
   @ApiProperty({ example: 'password' })
   password: string;
 
-  @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
-  @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
-  @IsEnum(UserRole, { message: i18nValidationMessage('validation.INVALID_USER_ENUM') })
-  @ApiProperty({ example: 'Admin | Courier | Customer' })
-  role: UserRole;
+  // @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
+  // @IsString({ message: i18nValidationMessage('validation.INVALID_STRING') })
+  // @IsEnum(UserRole, { message: i18nValidationMessage('validation.INVALID_USER_ENUM') })
+  // @ApiProperty({ example: 'Admin | Courier | Customer' })
+  // role: UserRole;
 }

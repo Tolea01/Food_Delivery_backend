@@ -1,4 +1,3 @@
-import * as process from 'process';
 import * as path from 'path';
 
 export const i18nConfig = (): any => ({

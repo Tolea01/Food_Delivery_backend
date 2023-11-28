@@ -6,6 +6,12 @@ interface GeoQueryResult {
 interface UserData {
   id: number;
   username: string;
+}
+
+interface UserProps {
+  id: number;
+  username: string;
+  password: string;
   role: string;
 }
 
@@ -18,4 +24,10 @@ interface PaginatorConfig {
 
 interface ProductCategoryQueryResult extends GeoQueryResult {}
 
-export { GeoQueryResult, UserData, ProductCategoryQueryResult, PaginatorConfig };
+export {
+  GeoQueryResult,
+  UserData,
+  ProductCategoryQueryResult,
+  PaginatorConfig,
+  UserProps,
+};

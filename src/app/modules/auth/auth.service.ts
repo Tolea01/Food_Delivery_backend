@@ -11,7 +11,9 @@ import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 import { User } from '@user/entities/user.entity';
 import appError from 'src/app/config/appError';
-import { UserData } from '@app/interfaces/interfaces';
+import { UserData, UserProps } from '@app/interfaces/interfaces';
+import { UserItemDto } from '@user/dto/user.item.dto';
+import handleExceptionError from '@helpers/handle-exception-error';
 
 @Injectable()
 export class AuthService {
@@ -20,9 +22,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(payload: LoginDto): Promise<UserData> {
+  async validateUser(payload: LoginDto): Promise<UserProps> {
     try {
-      const user: User = await this.userService.getUserByUsername(payload.username);
+      const user: UserProps = await this.userService.getUserByUsername(payload.username);
 
       if (user) {
         const passwordIsMatch: boolean = await argon2.verify(
@@ -31,7 +33,7 @@ export class AuthService {
         );
 
         if (passwordIsMatch) {
-          const userData = { ...user };
+          const userData: any = { ...user };
           delete userData.password;
           return userData;
         }
@@ -48,22 +50,21 @@ export class AuthService {
         sub: user.id,
         id: user.id,
         username: user.username,
-        role: user.role,
       });
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }
   }
 
-  async registerUser(user: CreateUserDto): Promise<Partial<User>> {
+  async registerUser(user: CreateUserDto): Promise<UserItemDto> {
     try {
       return await this.userService.create(user);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      handleExceptionError(error);
     }
   }
 
-  async getUserByToken(token: string): Promise<User> {
+  async getUserByToken(token: string): Promise<UserItemDto> {
     try {
       const credentials = (await this.jwtService.decode(
         token.replace('Bearer ', ''),
@@ -75,7 +76,7 @@ export class AuthService {
 
       const { sub } = credentials;
 
-      const user: User = await this.userService.getUserById(sub);
+      const user: UserItemDto = await this.userService.getUserById(sub);
 
       if (!user) {
         throw new NotFoundException(appError.USER_NOT_FOUND);
@@ -83,7 +84,7 @@ export class AuthService {
 
       return user;
     } catch (error) {
-      throw new UnauthorizedException(error.message);
+      handleExceptionError(error);
     }
   }
 }

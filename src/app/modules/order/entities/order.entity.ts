@@ -57,7 +57,7 @@ export class Order {
   @JoinColumn({ name: 'customer_id' })
   customer_id: number;
 
-  @ManyToOne(() => User, (courier: User) => courier.id)
+  @ManyToOne(() => User, (user: User) => user.id)
   @JoinColumn({ name: 'courier_id' })
   courier_id: number;
 
@@ -92,7 +92,7 @@ export class Order {
     enum: PaymentMethod,
     default: PaymentMethod.CourierCash,
   })
-  payment_method: string;//todo type PaymentMethod
+  payment_method: string; //todo type PaymentMethod
 
   @Column({ type: 'varchar', length: 250 })
   comments: string;
