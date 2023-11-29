@@ -120,7 +120,7 @@ export class UserService {
     try {
       await this.userRepository.delete(id);
     } catch (error) {
-      handleExceptionError(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 }
