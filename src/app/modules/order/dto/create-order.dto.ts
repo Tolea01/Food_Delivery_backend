@@ -17,18 +17,24 @@ export class CreateOrderDto {
   number: string;
 
   created_by: number;
+  customer_id: number;
 
   @ApiProperty({ example: 0, description: 'Total products price' })
   @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
   @IsDecimal({}, { message: i18nValidationMessage('validation.INVALID_DECIMAL') })
   total_products_price: number;
 
+  @ApiProperty({ example: 2, description: 'Courier id' })
+  @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
+  @IsNumber({}, { message: i18nValidationMessage('validation.INVALID_NUMBER') })
+  courier_id: number;
+
   @ApiProperty({ example: 'Courier', description: 'Delivery method' })
   @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
   @IsEnum(DeliveryMethod, {
     message: i18nValidationMessage('validation.INVALID_DELIVERY_METHOD'),
   })
-  delivery_method: string;
+  delivery_method: DeliveryMethod;
 
   @ApiProperty({ example: 250, description: 'Delivery price' })
   @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
@@ -69,7 +75,7 @@ export class CreateOrderDto {
   @IsEnum(PaymentMethod, {
     message: i18nValidationMessage('validation.INVALID_PAYMENT_METHOD'),
   })
-  payment_method: string;
+  payment_method: PaymentMethod;
 
   @ApiProperty({ example: 'Order Comments', description: 'Order comments' })
   @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })

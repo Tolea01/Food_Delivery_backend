@@ -8,34 +8,36 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, IsNull, Repository, SelectQueryBuilder } from 'typeorm';
-import appError from '@app/config/appError';
+import { IsNull, Repository, SelectQueryBuilder } from 'typeorm';
+import { OrderCoCustomer } from '@modules/order/entities/order-co-customer.entity';
+import handleExceptionError from '@helpers/handle-exception-error';
+import { CreateOrderResponseDto } from '@modules/order/dto/create-order.response.dto';
+import { plainToClass } from 'class-transformer';
+import { OrderItemDto } from '@modules/order/dto/order.item.dto';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order) private readonly orderRepository: Repository<Order>,
-    private readonly entityManager: EntityManager,
+    @InjectRepository(OrderCoCustomer)
+    private readonly orderCustomer: Repository<OrderCoCustomer>,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto, user: any): Promise<Order> {
+  async createOrder(
+    createOrderDto: CreateOrderDto,
+    user: any,
+  ): Promise<CreateOrderResponseDto> {
     try {
-      return await this.entityManager.transaction(
-        async (transaction: EntityManager): Promise<Order> => {
-          const existOrder: Order | undefined = await this.orderRepository.findOne({
-            where: createOrderDto,
-          });
+      const order: Order | undefined = await this.orderRepository.findOne({
+        where: createOrderDto,
+      });
 
-          if (existOrder) {//todo here you don't need check unique
-            throw new BadRequestException(appError.ORDER_EXIST);
-          } else {
-            createOrderDto.created_by = user.id;
-            return await transaction.save(Order, createOrderDto);
-          }
-        },
-      );
+      createOrderDto.created_by = user.id;
+      createOrderDto.customer_id = user.id;
+      await this.orderRepository.save(createOrderDto);
+      return plainToClass(CreateOrderResponseDto, order);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      handleExceptionError(error);
     }
   }
 
@@ -56,7 +58,7 @@ export class OrderService {
   ): Promise<Order[]> {
     try {
       const queryBuilder: SelectQueryBuilder<Order> =
-        await this.orderRepository.createQueryBuilder('order');
+        this.orderRepository.createQueryBuilder('order');
 
       queryBuilder
         .orderBy(sortBy ? `order.${sortBy}` : '1=1', orderBy)
@@ -86,7 +88,7 @@ export class OrderService {
         .andWhere(joinCode ? 'order.join_code = :joinCode' : '1=1', {
           joinCode,
         })
-        .andWhere('(product.deleted_by IS NULL AND product.deleted_at IS NULL)')//todo .withDeleted()
+        .andWhere('(product.deleted_by IS NULL AND product.deleted_at IS NULL)') //todo .withDeleted()
 
         .skip((page - 1) * pageSize)
         .take(pageSize);
@@ -97,7 +99,7 @@ export class OrderService {
     }
   }
 
-  async findOne(id: number): Promise<Order | undefined> {
+  async findOne(id: number): Promise<OrderItemDto | undefined> {
     try {
       return await this.orderRepository.findOneOrFail({
         where: { id, deleted_at: IsNull() },
@@ -107,7 +109,7 @@ export class OrderService {
     }
   }
 
-  async getOne(id: number): Promise<Order | undefined> {
+  async getOne(id: number): Promise<OrderItemDto | undefined> {
     try {
       return await this.orderRepository.findOneOrFail({
         where: { id },
@@ -121,70 +123,50 @@ export class OrderService {
     id: number,
     updateOrderDto: UpdateOrderDto,
     user: any,
-  ): Promise<Partial<Order>> {
+  ): Promise<UpdateOrderDto> {
     try {
-      return await this.entityManager.transaction(
-        async (transaction: EntityManager): Promise<Partial<Order>> => {
-          await this.findOne(id);
+      await this.findOne(id);
 
-          updateOrderDto.updated_by = user.id;
-          updateOrderDto.updated_at = new Date();
+      updateOrderDto.updated_by = user.id;
+      updateOrderDto.updated_at = new Date();
 
-          await transaction.update(Order, id, updateOrderDto);
+      await this.orderRepository.update(id, updateOrderDto);
 
-          return updateOrderDto;
-        },
-      );
+      return updateOrderDto;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new BadRequestException(error.message);
-      }
+      handleExceptionError(error);
     }
   }
 
   async remove(id: number): Promise<void> {
     try {
-      return await this.entityManager.transaction(
-        async (transaction: EntityManager): Promise<void> => {
-          await transaction.delete(Order, id);
-        },
-      );
+      await this.orderRepository.delete(id);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }
   }
 
-  async removeDeleteValues(id: number): Promise<void> {//todo rename method to restore
+  async restoreDeletedValues(id: number): Promise<void> {
     try {
-      return await this.entityManager.transaction(
-        async (transaction: EntityManager): Promise<void> => {
-          const order: Order | undefined = await this.getOne(id);
+      const order: Order | undefined = await this.getOne(id);
 
-          order.deleted_by = null;
-          order.deleted_at = null;
+      order.deleted_by = null;
+      order.deleted_at = null;
 
-          await transaction.save(Order, order);
-        },
-      );
+      await this.orderRepository.save(order);
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      handleExceptionError(error);
     }
   }
 
-  async deletedBy(id: number, user: any): Promise<void> {//todo rename to softDelete
+  async softDelete(id: number, user: any): Promise<void> {
     try {
-      return await this.entityManager.transaction(
-        async (transaction: EntityManager): Promise<void> => {
-          const order: Order | undefined = await this.getOne(id);
+      const order: Order | undefined = await this.getOne(id);
 
-          order.deleted_by = user.id;
-          order.deleted_at = new Date();
+      order.deleted_by = user.id;
+      order.deleted_at = new Date();
 
-          await transaction.save(Order, order);
-        },
-      );
+      await this.orderRepository.save(order);
     } catch (error) {
       throw new InternalServerErrorException(error.message);
     }

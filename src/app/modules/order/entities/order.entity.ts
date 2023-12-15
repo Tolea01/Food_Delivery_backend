@@ -48,7 +48,7 @@ export class Order {
     enum: Status,
     default: Status.New,
   })
-  status: string;
+  status: Status;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   total_products_price: number;
@@ -69,7 +69,7 @@ export class Order {
     enum: DeliveryMethod,
     default: DeliveryMethod.Self,
   })
-  delivery_method: string;
+  delivery_method: DeliveryMethod;
 
   @ManyToOne(() => Location, (location: Location) => location.id)
   @JoinColumn({ name: 'delivery_location_id' })
@@ -92,7 +92,7 @@ export class Order {
     enum: PaymentMethod,
     default: PaymentMethod.CourierCash,
   })
-  payment_method: string; //todo type PaymentMethod
+  payment_method: PaymentMethod;
 
   @Column({ type: 'varchar', length: 250 })
   comments: string;

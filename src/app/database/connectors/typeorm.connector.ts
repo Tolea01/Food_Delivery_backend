@@ -5,7 +5,7 @@ import { Location } from '@location/entities/location.entity';
 import { Region } from '@region/entities/region.entity';
 import { Country } from '@country/entities/country.entity';
 import { Product } from '@product/entities/product.entity';
-import { OrderCoCustomer } from '@order-co-customer/entities/order-co-customer.entity';
+import { OrderCoCustomer } from '@modules/order/entities/order-co-customer.entity';
 import { ProductCategory } from '@product-category/entities/product-category.entity';
 
 export const databaseConfig = (): any => ({

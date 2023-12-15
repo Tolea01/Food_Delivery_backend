@@ -21,6 +21,8 @@ import { QueryApiOperation } from '@app/helpers/query-api-operation';
 import { Order } from './entities/order.entity';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { LanguageHeader } from '@app/helpers/language-header';
+import { CreateOrderResponseDto } from '@modules/order/dto/create-order.response.dto';
+import { OrderItemDto } from '@modules/order/dto/order.item.dto';
 
 @ApiTags('Order CRUD')
 @ApiBearerAuth()
@@ -34,8 +36,8 @@ export class OrderController {
   async create(
     @Body() createOrderDto: CreateOrderDto,
     @Req() req: Request,
-  ): Promise<Order> {
-    return await this.ordersService.create(createOrderDto, req.user);
+  ): Promise<CreateOrderResponseDto> {
+    return await this.ordersService.createOrder(createOrderDto, req.user);
   }
 
   @Get('list')
@@ -82,7 +84,7 @@ export class OrderController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get order by id' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Order> {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<OrderItemDto> {
     return await this.ordersService.findOne(id);
   }
 
@@ -93,7 +95,7 @@ export class OrderController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateOrderDto: UpdateOrderDto,
     @Req() req: Request,
-  ): Promise<Partial<Order>> {
+  ): Promise<UpdateOrderDto> {
     return await this.ordersService.update(id, updateOrderDto, req.user);
   }
 
@@ -103,13 +105,13 @@ export class OrderController {
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request,
   ): Promise<void> {
-    return await this.ordersService.deletedBy(id, req.user);
+    return await this.ordersService.softDelete(id, req.user);
   }
 
   @Delete('delete-values/:id')
   @ApiOperation({ summary: "Remove values 'deleted_by & deleted_at'" })
   async removeDeleteValues(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return await this.ordersService.removeDeleteValues(id);
+    return await this.ordersService.restoreDeletedValues(id);
   }
 
   @Delete(':id')

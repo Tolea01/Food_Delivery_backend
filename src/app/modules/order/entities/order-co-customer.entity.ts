@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { UniqueColumn } from 'src/app/helpers/column-helpers';
+import { UniqueColumn } from '@helpers/column-helpers';
 
 @Entity()
 export class OrderCoCustomer {

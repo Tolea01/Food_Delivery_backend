@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { OrderCoCustomerService } from './order-co-customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { OrderCoCustomer } from './entities/order-co-customer.entity';
+import { OrderCoCustomer } from '../order/entities/order-co-customer.entity';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { LanguageHeader } from '@app/helpers/language-header';

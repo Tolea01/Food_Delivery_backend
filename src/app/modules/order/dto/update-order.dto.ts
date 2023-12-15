@@ -23,7 +23,7 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @IsOptional()
   @IsNotEmpty({ message: i18nValidationMessage('validation.NOT_EMPTY') })
   @IsEnum(Status, { message: i18nValidationMessage('validation.INVALID_STATUS') })
-  status?: string;
+  status?: Status;
 
   @ApiProperty({ example: 0, description: 'Total products price' })
   @IsOptional()
@@ -49,7 +49,7 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @IsEnum(DeliveryMethod, {
     message: i18nValidationMessage('validation.INVALID_DELIVERY_METHOD'),
   })
-  delivery_method?: string;
+  delivery_method?: DeliveryMethod;
 
   @ApiProperty({ example: 250, description: 'Delivery price' })
   @IsOptional()
@@ -103,7 +103,7 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @IsEnum(PaymentMethod, {
     message: i18nValidationMessage('validation.INVALID_PAYMENT_METHOD'),
   })
-  payment_method?: string;
+  payment_method?: PaymentMethod;
 
   @ApiProperty({ example: 'Order Comments', description: 'Order comments' })
   @IsOptional()
